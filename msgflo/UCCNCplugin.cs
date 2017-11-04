@@ -152,7 +152,8 @@ namespace Plugins {
     }
 
     private void onFirstCycle() {
-
+      connect(ref hClient_, brokerHostname_);
+      send(hClient_, topic_, "Hello from c_nancy!");
     }
 
     private void onTick() {
@@ -188,9 +189,6 @@ namespace Plugins {
 
     // Called from UCCNC when the plugin is loaded and started.
     public void Startup_event() {
-      connect(ref hClient_, brokerHostname_);
-      send(hClient_, topic_, "Hello from c_nancy!");
-
       if (myform.IsDisposed)
         myform = new PluginForm(this);
 
