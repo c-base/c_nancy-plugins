@@ -143,19 +143,16 @@ namespace Plugins {
     PluginForm myform;
     public bool loopstop = false;
     public bool loopworking = false;
+    public int hClient_ = 0;
+    public String brokerHostname_ = "tcp://c-beam:1883";
+    public String topic_ = "werkstatt/c_cancy";
 
     public UCCNCplugin() {
 
     }
 
     private void onFirstCycle() {
-      int error = 0;
-      int hClient = 0;
 
-      error = connect(ref hClient, "tcp://iot.eclipse.org:1883");
-      error = send(hClient, "c-base/c_cancy", "Hello from c_nancy!");
-      error = MQTTClient_disconnect(hClient, 10000);
-      MQTTClient_destroy(ref hClient);
     }
 
     private void onTick() {
@@ -191,6 +188,9 @@ namespace Plugins {
 
     // Called from UCCNC when the plugin is loaded and started.
     public void Startup_event() {
+      connect(ref hClient_, brokerHostname_);
+      send(hClient_, topic_, "Hello from c_nancy!");
+
       if (myform.IsDisposed)
         myform = new PluginForm(this);
 
@@ -209,6 +209,10 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
+        send(hClient_, topic_, "bye!");
+        MQTTClient_disconnect(hClient_, 10000);
+        MQTTClient_destroy(ref hClient_);
+
         myform.Close();
       }
       catch (Exception) { }
