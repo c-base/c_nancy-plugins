@@ -145,7 +145,9 @@ namespace Plugins {
     public bool loopworking = false;
     public int hClient_ = 0;
     public String brokerHostname_ = "tcp://c-beam:1883";
-    public String topic_ = "werkstatt/c_cancy";
+    public String topic_ = "werkstatt/c_nancy/";
+    public long lastTick = DateTime.Now.Ticks;
+    public long lastTick2 = DateTime.Now.Ticks;
 
     public UCCNCplugin() {
 
@@ -153,10 +155,43 @@ namespace Plugins {
 
     private void onFirstCycle() {
       connect(ref hClient_, brokerHostname_);
-      send(hClient_, topic_, "Hello from c_nancy!");
+
+      send(hClient_, topic_ + "running", "true");
     }
 
     private void onTick() {
+      long tick = DateTime.Now.Ticks;
+      long diffSeconds = (tick - lastTick) / 10000000;
+      long diffSeconds2 = (tick - lastTick2) / 10000000;
+
+      if (diffSeconds2 == 1) {
+        var x = UC.Getfield(true, 226);
+        var y = UC.Getfield(true, 227);
+        var z = UC.Getfield(true, 228);
+        var a = UC.Getfield(true, 229);
+        var b = UC.Getfield(true, 230);
+        var c = UC.Getfield(true, 231);
+
+        String status = String.Format(@"{{""X"": {0}, ""Y"": {1}, ""Z"": {2}," +
+                                      @"  ""A"": {3}, ""B"": {4}, ""C"": {5}}}",
+                                      x, y, z, a, b, c);
+
+        send(hClient_, topic_ + "status", status);
+        lastTick2 = DateTime.Now.Ticks;
+      }
+
+      if (diffSeconds == 60) {
+        String discovery = @"{""protocol"": ""discovery"", ""command"": ""participant"", ""payload"":
+                           { ""component"": ""c-base/c_nancy"", ""label"": ""CNC mill status"",
+                           ""icon"": ""scissors"", ""inports"": [],
+                           ""outports"": [{""id"": ""running"", ""type"": ""boolean"", ""queue"": ""werkstatt/c_nancy/running""}], ""role"": ""c_nancy"", ""id"": ""c_nancy""}}";
+
+        send(hClient_, "fbp", discovery);
+        lastTick = DateTime.Now.Ticks;
+      }
+
+
+
       myform.label1.Text = "X: " + UC.Getfield(true, 226);
       myform.label2.Text = "Y: " + UC.Getfield(true, 227);
       myform.label3.Text = "Z: " + UC.Getfield(true, 228);
@@ -207,7 +242,7 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
-        send(hClient_, topic_, "bye!");
+        send(hClient_, topic_ + "running", "false");
         MQTTClient_disconnect(hClient_, 10000);
         MQTTClient_destroy(ref hClient_);
 
