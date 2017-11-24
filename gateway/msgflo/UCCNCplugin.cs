@@ -95,7 +95,7 @@ namespace Plugins {
       opts.keepAliveInterval = 20;
       opts.cleansession = 1;
 
-      StringBuilder clientId = new StringBuilder("c_nancy");
+      StringBuilder clientId = new StringBuilder("c_nancy_emulator");
       StringBuilder uri = new StringBuilder(hostname);
 
       MQTTClient_create(ref hClient, uri, clientId, 1, null);
@@ -145,15 +145,27 @@ namespace Plugins {
     public bool loopworking = false;
     public int hClient_ = 0;
     public String brokerHostname_ = "tcp://c-beam:1883";
-    public String topic_ = "werkstatt/c_cancy";
+    public String topic_ = "werkstatt";
 
     public UCCNCplugin() {
 
     }
 
+    public class UcncMsgFloStatus {
+      public bool running { get; set; }
+    }
+
     private void onFirstCycle() {
+      MessageBox.Show("Plugin is running!");
+
       connect(ref hClient_, brokerHostname_);
-      send(hClient_, topic_, "Hello from c_nancy!");
+
+      UcncMsgFloStatus status = new UcncMsgFloStatus();
+      status.running = true;
+      string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
+
+      send(hClient_, topic_, "bla");
+      MessageBox.Show("Plugin is still running!");
     }
 
     private void onTick() {
@@ -207,7 +219,11 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
-        send(hClient_, topic_, "bye!");
+        UcncMsgFloStatus status = new UcncMsgFloStatus();
+        status.running = true;
+        string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
+
+        send(hClient_, topic_, json);
         MQTTClient_disconnect(hClient_, 10000);
         MQTTClient_destroy(ref hClient_);
 
