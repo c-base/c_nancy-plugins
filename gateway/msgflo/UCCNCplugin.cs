@@ -6,137 +6,151 @@ using System.Runtime.InteropServices;
 
 namespace Plugins {
   public class UCCNCplugin { // Class name must be UCCNCplugin to work!
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct MQTTClient_connOptions {
-      public char struct_id0;
-      public char struct_id1;
-      public char struct_id2;
-      public char struct_id3;
-      public int struct_version;
-      public int keepAliveInterval;
-      public int cleansession;
-      public int reliable;
-      public void* will;
-      public void* username;
-      public void* password;
-      public int connectTimeout;
-      public int retryInterval;
-      public void* ssl;
-      public int serverURIcount;
-      public void* serverURIs;
-      public int MQTTVersion;
-      public void* returnedServerURI;
-      public int returnedMQTTVersion;
-      public int returnedSessionPresent;
-      public int binarypwLen;
-      public void* binarypwData;
-    }
+                             //    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+                             //    public unsafe struct MQTTClient_connOptions {
+                             //      public char struct_id0;
+                             //      public char struct_id1;
+                             //      public char struct_id2;
+                             //      public char struct_id3;
+                             //      public int struct_version;
+                             //      public int keepAliveInterval;
+                             //      public int cleansession;
+                             //      public int reliable;
+                             //      public void* will;
+                             //      public void* username;
+                             //      public void* password;
+                             //      public int connectTimeout;
+                             //      public int retryInterval;
+                             //      public void* ssl;
+                             //      public int serverURIcount;
+                             //      public void* serverURIs;
+                             //      public int MQTTVersion;
+                             //      public void* returnedServerURI;
+                             //      public int returnedMQTTVersion;
+                             //      public int returnedSessionPresent;
+                             //      public int binarypwLen;
+                             //      public void* binarypwData;
+                             //    }
+                             //
+                             //    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
+                             //    public unsafe struct MQTTClient_message {
+                             //      public char struct_id0;
+                             //      public char struct_id1;
+                             //      public char struct_id2;
+                             //      public char struct_id3;
+                             //      public int struct_version;
+                             //      public int payloadlen;
+                             //      public void* payload;
+                             //      public int qos;
+                             //      public int retained;
+                             //      public int dup;
+                             //      public int msgid;
+                             //    }
+                             //
+                             //    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
+                             //    public static extern unsafe int MQTTClient_create(ref int handle, StringBuilder serverURI,
+                             //        StringBuilder clientId, int persistence_type, void* persistence_context);
+                             //
+                             //    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
+                             //    public static extern unsafe int MQTTClient_connect(int handle, ref MQTTClient_connOptions options);
+                             //
+                             //    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
+                             //    public static extern unsafe int MQTTClient_publishMessage(int handle, StringBuilder topicName,
+                             //        ref MQTTClient_message message, ref int deliveryToken);
+                             //
+                             //    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
+                             //    public static extern unsafe int MQTTClient_disconnect(int handle, int timeout);
+                             //
+                             //    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
+                             //    public static extern unsafe void MQTTClient_destroy(ref int handle);
+                             //
+                             //    static unsafe int connect(ref int hClient, String hostname) {
+                             //      MQTTClient_connOptions opts = new MQTTClient_connOptions();
+                             //
+                             //      // init
+                             //      opts.struct_id0 = 'M';
+                             //      opts.struct_id1 = 'Q';
+                             //      opts.struct_id2 = 'T';
+                             //      opts.struct_id3 = 'C';
+                             //      opts.struct_version = 5;
+                             //      opts.keepAliveInterval = 60;
+                             //      opts.cleansession = 1;
+                             //      opts.reliable = 1;
+                             //      opts.will = null;
+                             //      opts.username = null;
+                             //      opts.password = null;
+                             //      opts.connectTimeout = 30;
+                             //      opts.retryInterval = 20;
+                             //      opts.ssl = null;
+                             //      opts.serverURIcount = 0;
+                             //      opts.serverURIs = null;
+                             //      opts.MQTTVersion = 0;
+                             //      opts.returnedServerURI = null;
+                             //      opts.returnedMQTTVersion = 0;
+                             //      opts.returnedSessionPresent = 0;
+                             //      opts.binarypwLen = 0;
+                             //      opts.binarypwData = null;
+                             //      // -
+                             //
+                             //      opts.keepAliveInterval = 20;
+                             //      opts.cleansession = 1;
+                             //
+                             //      StringBuilder clientId = new StringBuilder("c_nancy_emulator");
+                             //      StringBuilder uri = new StringBuilder(hostname);
+                             //
+                             //      MQTTClient_create(ref hClient, uri, clientId, 1, null);
+                             //      return MQTTClient_connect(hClient, ref opts);
+                             //    }
+                             //
+                             //    static unsafe int send(int hClient, string topic, String payload) {
+                             //      MQTTClient_message msg = new MQTTClient_message();
+                             //      // init
+                             //      msg.struct_id0 = 'M';
+                             //      msg.struct_id1 = 'Q';
+                             //      msg.struct_id2 = 'T';
+                             //      msg.struct_id3 = 'M';
+                             //      msg.struct_version = 0;
+                             //      msg.payloadlen = 0;
+                             //      msg.payload = null;
+                             //      msg.qos = 0;
+                             //      msg.retained = 0;
+                             //      msg.dup = 0;
+                             //      msg.msgid = 0;
+                             //      // -
+                             //
+                             //      byte* p = stackalloc byte[payload.Length + 1];
+                             //
+                             //      for (int i = 0; i < payload.Length; i++)
+                             //        p[i] = (byte)payload[i];
+                             //
+                             //      p[payload.Length] = 0;
+                             //
+                             //      msg.payload = p;
+                             //      msg.payloadlen = payload.Length;
+                             //
+                             //      msg.qos = 1;
+                             //      msg.retained = 0;
+                             //      int deliveredToken = 0;
+                             //
+                             //      StringBuilder tmp = new StringBuilder(256);
+                             //      tmp.Append(topic);
+                             //
+                             //      return MQTTClient_publishMessage(hClient, tmp, ref msg, ref deliveredToken);
+                             //    }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    public unsafe struct MQTTClient_message {
-      public char struct_id0;
-      public char struct_id1;
-      public char struct_id2;
-      public char struct_id3;
-      public int struct_version;
-      public int payloadlen;
-      public void* payload;
-      public int qos;
-      public int retained;
-      public int dup;
-      public int msgid;
-    }
 
-    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int MQTTClient_create(ref int handle, StringBuilder serverURI,
-        StringBuilder clientId, int persistence_type, void* persistence_context);
 
-    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int MQTTClient_connect(int handle, ref MQTTClient_connOptions options);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe void empty();
 
-    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int MQTTClient_publishMessage(int handle, StringBuilder topicName,
-        ref MQTTClient_message message, ref int deliveryToken);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe void _string (StringBuilder pString);
 
-    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int MQTTClient_disconnect(int handle, int timeout);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe void stringAndNumber(StringBuilder pString, int num);
 
-    [DllImport("paho-mqtt3c.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe void MQTTClient_destroy(ref int handle);
-
-    static unsafe int connect(ref int hClient, String hostname) {
-      MQTTClient_connOptions opts = new MQTTClient_connOptions();
-
-      // init
-      opts.struct_id0 = 'M';
-      opts.struct_id1 = 'Q';
-      opts.struct_id2 = 'T';
-      opts.struct_id3 = 'C';
-      opts.struct_version = 5;
-      opts.keepAliveInterval = 60;
-      opts.cleansession = 1;
-      opts.reliable = 1;
-      opts.will = null;
-      opts.username = null;
-      opts.password = null;
-      opts.connectTimeout = 30;
-      opts.retryInterval = 20;
-      opts.ssl = null;
-      opts.serverURIcount = 0;
-      opts.serverURIs = null;
-      opts.MQTTVersion = 0;
-      opts.returnedServerURI = null;
-      opts.returnedMQTTVersion = 0;
-      opts.returnedSessionPresent = 0;
-      opts.binarypwLen = 0;
-      opts.binarypwData = null;
-      // -
-
-      opts.keepAliveInterval = 20;
-      opts.cleansession = 1;
-
-      StringBuilder clientId = new StringBuilder("c_nancy_emulator");
-      StringBuilder uri = new StringBuilder(hostname);
-
-      MQTTClient_create(ref hClient, uri, clientId, 1, null);
-      return MQTTClient_connect(hClient, ref opts);
-    }
-
-    static unsafe int send(int hClient, string topic, String payload) {
-      MQTTClient_message msg = new MQTTClient_message();
-      // init
-      msg.struct_id0 = 'M';
-      msg.struct_id1 = 'Q';
-      msg.struct_id2 = 'T';
-      msg.struct_id3 = 'M';
-      msg.struct_version = 0;
-      msg.payloadlen = 0;
-      msg.payload = null;
-      msg.qos = 0;
-      msg.retained = 0;
-      msg.dup = 0;
-      msg.msgid = 0;
-      // -
-
-      byte* p = stackalloc byte[payload.Length + 1];
-
-      for (int i = 0; i < payload.Length; i++)
-        p[i] = (byte)payload[i];
-
-      p[payload.Length] = 0;
-
-      msg.payload = p;
-      msg.payloadlen = payload.Length;
-
-      msg.qos = 1;
-      msg.retained = 0;
-      int deliveredToken = 0;
-
-      StringBuilder tmp = new StringBuilder(256);
-      tmp.Append(topic);
-
-      return MQTTClient_publishMessage(hClient, tmp, ref msg, ref deliveredToken);
-    }
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe int stringAndNumberWithIntRet(StringBuilder pString, int num);
 
     bool isFirstCycle = true;
     public Plugininterface.Entry UC;
@@ -156,16 +170,31 @@ namespace Plugins {
     }
 
     private void onFirstCycle() {
-      MessageBox.Show("Plugin is running!");
+      empty();
 
-      connect(ref hClient_, brokerHostname_);
+      StringBuilder tmp;
+      tmp = new StringBuilder(256);
+      tmp.Append("string test");
+      _string(tmp);
 
-      UcncMsgFloStatus status = new UcncMsgFloStatus();
-      status.running = true;
-      string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
+      tmp = new StringBuilder(256);
+      tmp.Append("stringAndNumber test");
+      stringAndNumber(tmp, 23);
 
-      send(hClient_, topic_, "bla");
-      MessageBox.Show("Plugin is still running!");
+      tmp = new StringBuilder(256);
+      tmp.Append("stringAndNumberWithIntRet test");
+      stringAndNumberWithIntRet(tmp, 23);
+
+      // MessageBox.Show("Plugin is running!");
+
+      // connect(ref hClient_, brokerHostname_);
+
+      // UcncMsgFloStatus status = new UcncMsgFloStatus();
+      // status.running = true;
+      // string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
+      //
+      // send(hClient_, topic_, "bla");
+      // MessageBox.Show("Plugin is still running!");
     }
 
     private void onTick() {
@@ -219,13 +248,13 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
-        UcncMsgFloStatus status = new UcncMsgFloStatus();
-        status.running = true;
-        string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
-
-        send(hClient_, topic_, json);
-        MQTTClient_disconnect(hClient_, 10000);
-        MQTTClient_destroy(ref hClient_);
+        // UcncMsgFloStatus status = new UcncMsgFloStatus();
+        // status.running = true;
+        // string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
+        //
+        // send(hClient_, topic_, json);
+        // MQTTClient_disconnect(hClient_, 10000);
+        // MQTTClient_destroy(ref hClient_);
 
         myform.Close();
       }
