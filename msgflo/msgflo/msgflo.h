@@ -5,12 +5,18 @@
 #include <stdio.h>
 #include "singleton.h"
 
-#define dbg printf
+#define dbg(...) printf(__VA_ARGS__)
+#define trace() dbg("%s()\n", __FUNCTION__)
 
 class MsgFlo : public Singleton<MsgFlo> {
 public:
   MsgFlo();
   ~MsgFlo();
+
+  void empty();
+  void string(const char* pString);
+  void stringAndNumber(const char* pString, int num);
+  int stringAndNumberWithIntRet(const char* pString, int num);
 
 private:
   void attachDebugConsole();
