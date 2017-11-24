@@ -140,17 +140,17 @@ namespace Plugins {
 
 
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe void empty();
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public static extern void empty();
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe void _string (StringBuilder pString);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public static extern void _string ([MarshalAs(UnmanagedType.LPStr)]String pString);
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe void stringAndNumber(StringBuilder pString, int num);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public static extern void stringAndNumber([MarshalAs(UnmanagedType.LPStr)]String pString, int num);
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int stringAndNumberWithIntRet(StringBuilder pString, int num);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public static extern int stringAndNumberWithIntRet([MarshalAs(UnmanagedType.LPStr)]String pString, int num);
 
     bool isFirstCycle = true;
     public Plugininterface.Entry UC;
@@ -170,20 +170,15 @@ namespace Plugins {
     }
 
     private void onFirstCycle() {
-      empty();
-
-      StringBuilder tmp;
-      tmp = new StringBuilder(256);
-      tmp.Append("string test");
-      _string(tmp);
-
-      tmp = new StringBuilder(256);
-      tmp.Append("stringAndNumber test");
-      stringAndNumber(tmp, 23);
-
-      tmp = new StringBuilder(256);
-      tmp.Append("stringAndNumberWithIntRet test");
-      stringAndNumberWithIntRet(tmp, 23);
+      try {
+        empty();
+        _string("Hallo C++");
+        stringAndNumber("Calling stringAndNumber", 23);
+        stringAndNumberWithIntRet("Calling stringAndNumberWithIntRet", 23);
+      }
+      catch(Exception e) {
+        MessageBox.Show("Exception in msg-flow pluging!", "Error!");
+      }
 
       // MessageBox.Show("Plugin is running!");
 

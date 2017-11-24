@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgflo", "msgflo\msgflo.csproj", "{833AB583-1D7E-4A87-B28A-AF828B2948FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "msgflo_gateway", "msgflo_gateway\msgflo_gateway.csproj", "{833AB583-1D7E-4A87-B28A-AF828B2948FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Plugins</RootNamespace>
-    <AssemblyName>msgflo</AssemblyName>
+    <AssemblyName>msgflo_gateway</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -46,10 +46,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Plugininterface">
       <HintPath>..\Plugininterface.dll</HintPath>
     </Reference>
