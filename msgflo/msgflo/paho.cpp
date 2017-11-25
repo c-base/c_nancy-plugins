@@ -89,8 +89,6 @@ bool Paho::disconnect() {
 bool Paho::publish(const char* pTopic, const void* pPayload, int len, int qos, bool retain) {
   trace();
 
-  printf("C++: publishing to topic '%s': '%s'\n", pTopic, pPayload);
-
   MQTTClient_message msg;
   msg.struct_id[0] = 'M';
   msg.struct_id[1] = 'Q';
@@ -107,8 +105,6 @@ bool Paho::publish(const char* pTopic, const void* pPayload, int len, int qos, b
   MQTTClient_deliveryToken dt;
   if (int error = pClientPublishMessage_(hMqttClient_, pTopic, &msg, &dt))
     return false;
-
-  printf("C++: after publishing\n");
 
   return true;
 }

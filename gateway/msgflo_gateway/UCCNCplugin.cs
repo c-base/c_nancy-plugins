@@ -256,7 +256,7 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
-        mqttPublish(topic_ + "running", "false", 4, 1, true);
+        mqttPublish(topic_ + "running", "false", 5, 1, true);
         mqttDisconnect();
 
         myform.Close();
