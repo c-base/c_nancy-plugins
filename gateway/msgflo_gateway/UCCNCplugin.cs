@@ -140,17 +140,16 @@ namespace Plugins {
 
 
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void empty();
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool mqttConnect([MarshalAs(UnmanagedType.LPStr)]String pBrokerHostName,
+        [MarshalAs(UnmanagedType.LPStr)]String pClientId);
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void _string ([MarshalAs(UnmanagedType.LPStr)]String pString);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern bool mqttDisconnect();
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern void stringAndNumber([MarshalAs(UnmanagedType.LPStr)]String pString, int num);
-
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public static extern int stringAndNumberWithIntRet([MarshalAs(UnmanagedType.LPStr)]String pString, int num);
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern unsafe bool mqttPublish([MarshalAs(UnmanagedType.LPStr)]String pTopic,
+        [MarshalAs(UnmanagedType.LPStr)]String pPayload, int len, int qos, bool retain);
 
     bool isFirstCycle = true;
     public Plugininterface.Entry UC;
@@ -159,7 +158,7 @@ namespace Plugins {
     public bool loopworking = false;
     public int hClient_ = 0;
     public String brokerHostname_ = "tcp://c-beam:1883";
-    public String topic_ = "werkstatt";
+    public String topic_ = "werkstatt/c_nancy/";
 
     public UCCNCplugin() {
 
@@ -171,36 +170,50 @@ namespace Plugins {
 
     private void onFirstCycle() {
       try {
-        empty();
-        _string("Hallo C++");
-        stringAndNumber("Calling stringAndNumber", 23);
-        stringAndNumberWithIntRet("Calling stringAndNumberWithIntRet", 23);
+        mqttConnect(brokerHostname_, "c_nancy");
+        mqttPublish(topic_ + "running", "true", 4, 1, true);
       }
       catch(Exception e) {
         MessageBox.Show("Exception in msg-flow pluging!", "Error!");
       }
-
-      // MessageBox.Show("Plugin is running!");
-
-      // connect(ref hClient_, brokerHostname_);
-
-      // UcncMsgFloStatus status = new UcncMsgFloStatus();
-      // status.running = true;
-      // string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
-      //
-      // send(hClient_, topic_, "bla");
-      // MessageBox.Show("Plugin is still running!");
     }
+
+    public long lastTick = DateTime.Now.Ticks;
+    public long lastTick2 = DateTime.Now.Ticks;
 
     private void onTick() {
-      myform.label1.Text = "X: " + UC.Getfield(true, 226);
-      myform.label2.Text = "Y: " + UC.Getfield(true, 227);
-      myform.label3.Text = "Z: " + UC.Getfield(true, 228);
-      myform.label4.Text = "A: " + UC.Getfield(true, 229);
-      myform.label5.Text = "Set feed: " + UC.Getfield(true, 867);
-      myform.label6.Text = "Act feed: " + UC.Getfield(true, 868);
-    }
+      long tick = DateTime.Now.Ticks;
+      long diffSeconds = (tick - lastTick) / 10000000;
+      long diffSeconds2 = (tick - lastTick2) / 10000000;
 
+      if (diffSeconds2 == 1)
+      {
+        var x = UC.Getfield(true, 226);
+        var y = UC.Getfield(true, 227);
+        var z = UC.Getfield(true, 228);
+        var a = UC.Getfield(true, 229);
+        var b = UC.Getfield(true, 230);
+        var c = UC.Getfield(true, 231);
+
+        String status = String.Format(@"{{""X"": {0}, ""Y"": {1}, ""Z"": {2}," +
+                                      @"  ""A"": {3}, ""B"": {4}, ""C"": {5}}}",
+                                      x, y, z, a, b, c);
+
+        mqttPublish(topic_ + "status", status, status.Length, 1, false);
+        lastTick2 = DateTime.Now.Ticks;
+      }
+
+      if (diffSeconds == 60)
+      {
+        String discovery = @"{""protocol"": ""discovery"", ""command"": ""participant"", ""payload"":
+                           { ""component"": ""c-base/c_nancy"", ""label"": ""CNC mill status"",
+                           ""icon"": ""scissors"", ""inports"": [],
+                           ""outports"": [{""id"": ""running"", ""type"": ""boolean"", ""queue"": ""werkstatt/c_nancy/running""}], ""role"": ""c_nancy"", ""id"": ""c_nancy""}}";
+
+        mqttPublish("fbp", discovery, discovery.Length, 1, true);
+        lastTick = DateTime.Now.Ticks;
+      }
+    }
     // Called when the plugin is initialised.
     // The parameter is the Plugin interface object which contains all functions prototypes for calls and callbacks.
     public void Init_event(Plugininterface.Entry UC) {
@@ -243,13 +256,8 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
-        // UcncMsgFloStatus status = new UcncMsgFloStatus();
-        // status.running = true;
-        // string json = Newtonsoft.Json.JsonConvert.SerializeObject(status);
-        //
-        // send(hClient_, topic_, json);
-        // MQTTClient_disconnect(hClient_, 10000);
-        // MQTTClient_destroy(ref hClient_);
+        mqttPublish(topic_ + "running", "false", 4, 1, true);
+        mqttDisconnect();
 
         myform.Close();
       }

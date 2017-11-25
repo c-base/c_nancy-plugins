@@ -144,9 +144,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="paho.cpp" />
     <ClCompile Include="msgflo.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="debug.h" />
+    <ClInclude Include="paho.h" />
+    <ClInclude Include="MQTTClient.h" />
     <ClInclude Include="msgflo.h" />
     <ClInclude Include="singleton.h" />
   </ItemGroup>
