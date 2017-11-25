@@ -39,7 +39,7 @@ namespace Plugins {
         mqttConnect(brokerHostname_, "c_nancy");
         mqttPublish(topic_ + "running", "true", 4, 1, true);
       }
-      catch(Exception e) {
+      catch(Exception) {
         MessageBox.Show("Exception in msg-flow pluging!", "Error!");
       }
     }

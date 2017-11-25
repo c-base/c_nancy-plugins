@@ -47,7 +47,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Plugininterface">
-      <HintPath>..\Plugininterface.dll</HintPath>
+      <HintPath>.\Plugininterface.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
