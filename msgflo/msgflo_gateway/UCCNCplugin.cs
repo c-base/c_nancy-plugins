@@ -5,81 +5,26 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 namespace Plugins {
-  public class UCCNCplugin { // Class name must be UCCNCplugin to work!                             
+  public class UCCNCplugin { // Class name must be UCCNCplugin to work!     
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool mqttConnect([MarshalAs(UnmanagedType.LPStr)]String pBrokerHostName,
-        [MarshalAs(UnmanagedType.LPStr)]String pClientId);
+    public static extern bool onFirstCycle();
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool mqttDisconnect();
+    public static extern bool onTick();
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool mqttPublish([MarshalAs(UnmanagedType.LPStr)]String pTopic,
-        [MarshalAs(UnmanagedType.LPStr)]String pPayload, int len, int qos, bool retain);
-
-    bool isFirstCycle = true;
+    public static extern bool onShutdown();
+    
     public Plugininterface.Entry UC;
     PluginForm myform;
+    bool isFirstCycle = true;       
     public bool loopstop = false;
     public bool loopworking = false;
-    public int hClient_ = 0;
-    public String brokerHostname_ = "tcp://c-beam:1883";
-    public String topic_ = "werkstatt/c_nancy/";
 
     public UCCNCplugin() {
 
-    }
-
-    public class UcncMsgFloStatus {
-      public bool running { get; set; }
-    }
-
-    private void onFirstCycle() {
-      try {
-        mqttConnect(brokerHostname_, "c_nancy");
-        mqttPublish(topic_ + "running", "true", 4, 1, true);
-      }
-      catch(Exception) {
-        MessageBox.Show("Exception in msg-flow pluging!", "Error!");
-      }
-    }
-
-    public long lastTick = DateTime.Now.Ticks;
-    public long lastTick2 = DateTime.Now.Ticks;
-
-    private void onTick() {
-      long tick = DateTime.Now.Ticks;
-      long diffSeconds = (tick - lastTick) / 10000000;
-      long diffSeconds2 = (tick - lastTick2) / 10000000;
-
-      if (diffSeconds2 == 1) {
-        var x = UC.Getfield(true, 226);
-        var y = UC.Getfield(true, 227);
-        var z = UC.Getfield(true, 228);
-        var a = UC.Getfield(true, 229);
-        var b = UC.Getfield(true, 230);
-        var c = UC.Getfield(true, 231);
-
-        String status = String.Format(@"{{""X"": {0}, ""Y"": {1}, ""Z"": {2}," +
-                                      @"  ""A"": {3}, ""B"": {4}, ""C"": {5}}}",
-                                      x, y, z, a, b, c);
-
-        mqttPublish(topic_ + "status", status, status.Length, 1, false);
-        lastTick2 = DateTime.Now.Ticks;
-      }
-
-      if (diffSeconds == 60) {
-        String discovery = @"{""protocol"": ""discovery"", ""command"": ""participant"", ""payload"":
-                           { ""component"": ""c-base/c_nancy"", ""label"": ""CNC mill status"",
-                           ""icon"": ""scissors"", ""inports"": [],
-                           ""outports"": [{""id"": ""running"", ""type"": ""boolean"", ""queue"": ""werkstatt/c_nancy/running""}], ""role"": ""c_nancy"", ""id"": ""c_nancy""}}";
-
-        mqttPublish("fbp", discovery, discovery.Length, 1, true);
-        lastTick = DateTime.Now.Ticks;
-      }
-
-      
-    }
+    }    
+    
     // Called when the plugin is initialised.
     // The parameter is the Plugin interface object which contains all functions prototypes for calls and callbacks.
     public void Init_event(Plugininterface.Entry UC) {
@@ -122,14 +67,15 @@ namespace Plugins {
     // Called when the UCCNC software is closing.
     public void Shutdown_event() {
       try {
-        mqttPublish(topic_ + "running", "false", 5, 1, true);
-        mqttDisconnect();
-
+        loopstop = true;
+        onShutdown();
         myform.Close();
       }
-      catch (Exception) { }
+      catch (Exception) {
+        MessageBox.Show("Exception in msg-flow pluging!", "Error in Shutdown_event");
+      }
     }
-
+    
     // Called in a loop with a 25Hz interval.
     public void Loop_event()  {
       if (loopstop)
@@ -146,14 +92,13 @@ namespace Plugins {
       }
 
       try {
-          onTick();
+        onTick();
       }
       catch (Exception) {
-          MessageBox.Show("Exception in msg-flow pluging!", "Error!");
+        MessageBox.Show("Exception in msg-flow pluging!", "Error in Loop_event");
       }
 
-      loopworking = false;
-      //Console.WriteLine("" + Convert.ToInt32('A'));
+      loopworking = false;      
     }
 
     //This is a direct function call addressed to this plugin dll
@@ -163,11 +108,11 @@ namespace Plugins {
       if (!(myform == null || myform.IsDisposed)) {
         if (Message is string) {
           string receivedstr = Message as string;
-          MessageBox.Show(this.myform, "Informplugin message received by Plugintest! Message was: " + receivedstr);
+          MessageBox.Show(this.myform, "Informplugin message received by msgflo plugin! Message was: " + receivedstr);
         }
       }
 
-      string returnstr = "Return string by Plugintest";
+      string returnstr = "Return string by msgflo";
       return (object)returnstr;
     }
 
@@ -177,7 +122,7 @@ namespace Plugins {
     public void Informplugins_event(object Message) {
       if (!(myform == null || myform.IsDisposed)) {
         string receivedstr = Message as string;
-        MessageBox.Show(this.myform, "Informplugins message received by Plugintest! Message was: " + receivedstr);
+        MessageBox.Show(this.myform, "Informplugins message received by msgflo! Message was: " + receivedstr);
       }
     }
 
