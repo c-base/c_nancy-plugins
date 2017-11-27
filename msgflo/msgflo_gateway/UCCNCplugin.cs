@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace Plugins {
-  public class UCCNCplugin { // Class name must be UCCNCplugin to work!     
+  public class UCCNCplugin { // Class name must be UCCNCplugin to work!         
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onFirstCycle();
 
@@ -15,6 +16,17 @@ namespace Plugins {
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onShutdown();
     
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);        
+    public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected   
+
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble);
+
+    private double Handler(bool isAS3, int fieldnumber) {
+      return UC.Getfielddouble(isAS3, fieldnumber);
+    }
+
     public Plugininterface.Entry UC;
     PluginForm myform;
     bool isFirstCycle = true;       
@@ -22,14 +34,15 @@ namespace Plugins {
     public bool loopworking = false;
 
     public UCCNCplugin() {
-
-    }    
+      pGetFieldDouble = new GetFieldDoubleCallBack(Handler);
+      setCallBacks(pGetFieldDouble);
+    }
     
     // Called when the plugin is initialised.
     // The parameter is the Plugin interface object which contains all functions prototypes for calls and callbacks.
     public void Init_event(Plugininterface.Entry UC) {
       this.UC = UC;
-      myform = new PluginForm(this);
+      myform = new PluginForm(this);                 
     }
 
     // Called when the plugin is loaded, the author of the plugin should set the details of the plugin here.
@@ -58,7 +71,7 @@ namespace Plugins {
     // Called when the Pluginshowup(string Pluginfilename); function is executed in the UCCNC.
     public void Showup_event() {
       if (myform.IsDisposed)
-          myform = new PluginForm(this);
+        myform = new PluginForm(this);
 
       myform.Show();
       myform.BringToFront();
@@ -73,7 +86,7 @@ namespace Plugins {
       }
       catch (Exception) {
         MessageBox.Show("Exception in msg-flow pluging!", "Error in Shutdown_event");
-      }
+      }            
     }
     
     // Called in a loop with a 25Hz interval.
@@ -88,6 +101,7 @@ namespace Plugins {
 
       if (isFirstCycle) {
         isFirstCycle = false;
+        
         onFirstCycle();
       }
 

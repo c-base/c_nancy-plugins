@@ -9,11 +9,15 @@
 
 using namespace std;
 
+double getFieldDouble(bool isAS3, int fieldnumber);
+using GetFieldDoubleFunc = decltype(getFieldDouble);
+
 class MsgFlo : public Singleton<MsgFlo> {
 public:
   MsgFlo();
   ~MsgFlo();
 
+  void setCallBacks(GetFieldDoubleFunc pGetFieldDouble);
   void onFirstCycle();
   void onTick();
   void onShutdown();
@@ -29,6 +33,8 @@ private:
   string topic_;
   long lastTick_{0};
   long lastTick2_{0};
+
+  GetFieldDoubleFunc* pGetFieldDouble_{nullptr};
 };
 
 #endif // _MSFGLO_H
