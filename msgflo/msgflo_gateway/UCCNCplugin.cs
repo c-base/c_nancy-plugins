@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
 namespace Plugins {
-  public class UCCNCplugin { // Class name must be UCCNCplugin to work!         
+  public class UCCNCplugin { // Class name must be UCCNCplugin to work!
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onFirstCycle();
 
@@ -15,10 +15,23 @@ namespace Plugins {
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onShutdown();
-    
+
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void buttonpress_event(int buttonnumber, bool onscreen);
+
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void textfieldclick_event(int labelnumber, bool Ismainscreen);
+
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void textfieldtexttyped_event(int labelnumber, bool Ismainscreen, StringBuilder text);
+
+    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void getproperties_event(StringBuilder author, StringBuilder pluginName,
+        StringBuilder pluginVersion);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);        
-    public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected   
+    public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);
+    public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble);
@@ -29,7 +42,7 @@ namespace Plugins {
 
     public Plugininterface.Entry UC;
     PluginForm myform;
-    bool isFirstCycle = true;       
+    bool isFirstCycle = true;
     public bool loopstop = false;
     public bool loopworking = false;
 
@@ -37,19 +50,25 @@ namespace Plugins {
       pGetFieldDouble = new GetFieldDoubleCallBack(Handler);
       setCallBacks(pGetFieldDouble);
     }
-    
+
     // Called when the plugin is initialised.
     // The parameter is the Plugin interface object which contains all functions prototypes for calls and callbacks.
     public void Init_event(Plugininterface.Entry UC) {
       this.UC = UC;
-      myform = new PluginForm(this);                 
+      myform = new PluginForm(this);
     }
 
     // Called when the plugin is loaded, the author of the plugin should set the details of the plugin here.
     public Plugininterface.Entry.Pluginproperties Getproperties_event(Plugininterface.Entry.Pluginproperties Properties) {
-      Properties.author = "coon@c-base.org";
-      Properties.pluginname = "msg-flo";
-      Properties.pluginversion = "1.0000";
+      StringBuilder author = new StringBuilder(256);
+      StringBuilder pluginName = new StringBuilder(256);
+      StringBuilder pluginVersion = new StringBuilder(256);
+
+      getproperties_event(author, pluginName, pluginVersion);
+
+      Properties.author = author.ToString();
+      Properties.pluginname = pluginName.ToString();;
+      Properties.pluginversion = pluginVersion.ToString();
       return Properties;
     }
 
@@ -86,9 +105,9 @@ namespace Plugins {
       }
       catch (Exception) {
         MessageBox.Show("Exception in msg-flow pluging!", "Error in Shutdown_event");
-      }            
+      }
     }
-    
+
     // Called in a loop with a 25Hz interval.
     public void Loop_event()  {
       if (loopstop)
@@ -101,7 +120,6 @@ namespace Plugins {
 
       if (isFirstCycle) {
         isFirstCycle = false;
-        
         onFirstCycle();
       }
 
@@ -112,7 +130,7 @@ namespace Plugins {
         MessageBox.Show("Exception in msg-flow pluging!", "Error in Loop_event");
       }
 
-      loopworking = false;      
+      loopworking = false;
     }
 
     //This is a direct function call addressed to this plugin dll
@@ -144,22 +162,14 @@ namespace Plugins {
     //The int buttonnumber parameter is the ID of the caller button.
     // The bool onscreen parameter is true if the button was pressed on the GUI and is false if the Callbutton function was called.
     public void Buttonpress_event(int buttonnumber, bool onscreen) {
-      if (onscreen) {
-        if (buttonnumber == 128) {
-          // TODO: implement
-        }
-      }
+      buttonpress_event(buttonnumber, onscreen);
     }
 
     //Called when the user clicks and enters a Textfield on the screen
     //The labelnumber parameter is the ID of the accessed Textfield
     //The bool Ismainscreen parameter is true is the Textfield is on the main screen and false if it is on the jog screen
     public void Textfieldclick_event(int labelnumber, bool Ismainscreen) {
-      if (Ismainscreen) {
-        if (labelnumber == 1000) {
-          // TODO: implement
-        }
-      }
+      textfieldclick_event(labelnumber, Ismainscreen);
     }
 
     //Called when the user enters text into the Textfield and it gets validated
@@ -167,11 +177,8 @@ namespace Plugins {
     //The bool Ismainscreen parameter is true is the Textfield is on the main screen and false if it is on the jog screen.
     //The text parameter is the text entered and validated by the user
     public void Textfieldtexttyped_event(int labelnumber, bool Ismainscreen, string text) {
-      if (Ismainscreen) {
-        if (labelnumber == 1000) {
-          // TODO: implement
-        }
-      }
+      StringBuilder sbText = new StringBuilder(text);
+      textfieldtexttyped_event(labelnumber, Ismainscreen, sbText);
     }
   }
 }
