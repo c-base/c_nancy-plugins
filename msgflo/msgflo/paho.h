@@ -1,13 +1,16 @@
 #ifndef _PAHO_H
 #define _PAHO_H
 
+#include <string>
 #include <windows.h>
 #include "MQTTClient.h"
 #include "paho.h"
 
+using namespace std;
+
 class Paho {
 public:
-  Paho(const char* pPahoDllPath);
+  Paho(const string& pahoDllPath);
   ~Paho();
 
   bool connect(const char* pBrokerHostName, const char* pClientId);

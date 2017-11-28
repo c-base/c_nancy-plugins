@@ -1,16 +1,16 @@
 #include "debug.h"
 #include "paho.h"
 
-Paho::Paho(const char* pPahoDllPath) {
+Paho::Paho(const string& pahoDllPath) {
   trace();
 
-  dbg("Loading %s ...\n", pPahoDllPath);
-  hDll_ = LoadLibrary(pPahoDllPath);
+  dbg("Loading %s ...\n", pahoDllPath.c_str());
+  hDll_ = LoadLibrary(pahoDllPath.c_str());
 
   if (hDll_)
-    printf("%s loaded to: 0x%p\n", pPahoDllPath, hDll_);
+    printf("%s loaded to: 0x%p\n", pahoDllPath.c_str(), hDll_);
   else
-    printf("Failed loading %s\n", pPahoDllPath);
+    printf("Failed loading %s\n", pahoDllPath.c_str());
 
   pGetVersionInfoFunc_    = reinterpret_cast<MqttClientGetVersionInfo_t*>(GetProcAddress(hDll_, "MQTTClient_getVersionInfo"));
   pClientCreateFunc_      = reinterpret_cast<MqttClientCreate_t*>(GetProcAddress(hDll_,         "MQTTClient_create"));
