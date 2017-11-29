@@ -86,7 +86,7 @@ bool Paho::disconnect() {
   return true;
 }
 
-bool Paho::publish(const char* pTopic, const void* pPayload, int len, int qos, bool retain) {
+bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, bool retain) {
   trace();
 
   MQTTClient_message msg;
@@ -103,7 +103,7 @@ bool Paho::publish(const char* pTopic, const void* pPayload, int len, int qos, b
   msg.msgid = 0;
 
   MQTTClient_deliveryToken dt;
-  if (int error = pClientPublishMessage_(hMqttClient_, pTopic, &msg, &dt))
+  if (int error = pClientPublishMessage_(hMqttClient_, topic.c_str(), &msg, &dt))
     return false;
 
   return true;

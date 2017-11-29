@@ -20,6 +20,15 @@ constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 double getFieldDouble(bool isAS3, int fieldnumber);
 using GetFieldDoubleFunc = decltype(getFieldDouble);
 
+struct Position {
+  double x;
+  double y;
+  double z;
+  double a;
+  double b;
+  double c;
+};
+
 class MsgFlo : public Singleton<MsgFlo> {
 public:
   MsgFlo();
@@ -36,12 +45,13 @@ public:
 
 private:
   Paho* pPaho_{ nullptr };
-  string brokerHostname_;;
-  string topic_;
+  string brokerHostname_{MQTT_BROKER_HOSTNAME};
+  string baseTopic_{MQTT_BASE_TOPIC};
   long lastTick_{0};
   long lastTick2_{0};
 
   GetFieldDoubleFunc* pGetFieldDouble_{nullptr};
+  Position position_{0};
 };
 
 #endif // _MSFGLO_H

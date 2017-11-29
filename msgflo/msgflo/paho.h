@@ -15,7 +15,7 @@ public:
 
   bool connect(const char* pBrokerHostName, const char* pClientId);
   bool disconnect();
-  bool publish(const char* pTopic, const void* pPayload, int len, int qos, bool retain);
+  bool publish(const string& topic, const void* pPayload, int len, int qos, bool retain);
 
 private:
   using MqttClientGetVersionInfo_t = decltype(MQTTClient_getVersionInfo);
