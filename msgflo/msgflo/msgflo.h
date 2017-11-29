@@ -17,11 +17,15 @@ constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
 constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
 constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 
-double getFieldDouble(bool isAS3, int fieldnumber);
-using GetFieldDoubleFunc = decltype(getFieldDouble);
+double uCgetFieldDouble(bool isAS3, int fieldnumber);
+bool uCisMoving();
+
+using GetFieldDoubleFunc = decltype(uCgetFieldDouble);
+using IsMovingFunc = decltype(uCisMoving);
 
 struct PluginInterfaceEntry {
   GetFieldDoubleFunc* pGetFieldDouble;
+  IsMovingFunc* pIsMoving;
 };
 
 struct Position {
@@ -38,7 +42,7 @@ public:
   MsgFlo();
   ~MsgFlo();
 
-  void setCallBacks(GetFieldDoubleFunc* pGetFieldDouble, PluginInterfaceEntry pInterface);
+  void setCallBacks(GetFieldDoubleFunc* pGetFieldDouble, PluginInterfaceEntry uc);
   void onFirstCycle();
   void onTick();
   void onShutdown();
@@ -53,9 +57,8 @@ private:
   string baseTopic_{MQTT_BASE_TOPIC};
   long lastTick_{0};
   long lastTick2_{0};
-
-  GetFieldDoubleFunc* pGetFieldDouble_{nullptr};
   Position position_{0};
+  PluginInterfaceEntry UC{0};
 };
 
 #endif // _MSFGLO_H

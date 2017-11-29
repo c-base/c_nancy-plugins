@@ -33,18 +33,30 @@ namespace Plugins {
     public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);
     public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate bool IsMovingCallBack();
+    public IsMovingCallBack pIsMoving;
+
+
     [StructLayout(LayoutKind.Sequential)]
     public struct PluginInterfaceEntry {
       [MarshalAs(UnmanagedType.FunctionPtr)]
       public GetFieldDoubleCallBack pGetFieldDouble;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public IsMovingCallBack pIsMoving;
     }
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
     public static unsafe extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble,
         PluginInterfaceEntry pInterface);
 
-    private double Handler(bool isAS3, int fieldnumber) {
+    private double GetFieldDoubleHandler(bool isAS3, int fieldnumber) {
       return UC.Getfielddouble(isAS3, fieldnumber);
+    }
+
+    private bool IsMovingHandler() {
+      return UC.IsMoving();
     }
 
     public Plugininterface.Entry UC;
@@ -54,9 +66,14 @@ namespace Plugins {
     public bool loopworking = false;
 
     public unsafe UCCNCplugin() {
-      pGetFieldDouble = new GetFieldDoubleCallBack(Handler);
+      // Use instance variables to ensure the pointers doesn't get garbage collected:
+      pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
+      pIsMoving = new IsMovingCallBack(IsMovingHandler);
+      // --
+
       PluginInterfaceEntry uc = new PluginInterfaceEntry();
       uc.pGetFieldDouble = pGetFieldDouble;
+      uc.pIsMoving = pIsMoving;
 
       setCallBacks(pGetFieldDouble, uc);
     }
@@ -129,6 +146,9 @@ namespace Plugins {
         return;
 
       if (isFirstCycle) {
+
+
+
         isFirstCycle = false;
         onFirstCycle();
       }
