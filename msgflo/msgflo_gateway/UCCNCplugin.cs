@@ -33,8 +33,15 @@ namespace Plugins {
     public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);
     public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct PluginInterfaceEntry {
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetFieldDoubleCallBack pGetFieldDouble;
+    }
+
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble);
+    public static unsafe extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble,
+        PluginInterfaceEntry pInterface);
 
     private double Handler(bool isAS3, int fieldnumber) {
       return UC.Getfielddouble(isAS3, fieldnumber);
@@ -46,9 +53,12 @@ namespace Plugins {
     public bool loopstop = false;
     public bool loopworking = false;
 
-    public UCCNCplugin() {
+    public unsafe UCCNCplugin() {
       pGetFieldDouble = new GetFieldDoubleCallBack(Handler);
-      setCallBacks(pGetFieldDouble);
+      PluginInterfaceEntry uc = new PluginInterfaceEntry();
+      uc.pGetFieldDouble = pGetFieldDouble;
+
+      setCallBacks(pGetFieldDouble, uc);
     }
 
     // Called when the plugin is initialised.
