@@ -35,12 +35,7 @@ public:
   void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion);
 
 private:
-  void attachDebugConsole();
-  void detachDebugConsole();
-  bool isConsoleAttached_;
-  FILE* pDebugStream_{ nullptr };
   Paho* pPaho_{ nullptr };
-
   string brokerHostname_;;
   string topic_;
   long lastTick_{0};
