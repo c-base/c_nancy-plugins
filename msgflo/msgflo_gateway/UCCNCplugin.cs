@@ -29,17 +29,42 @@ namespace Plugins {
     public static extern void getproperties_event(StringBuilder author, StringBuilder pluginName,
         StringBuilder pluginVersion);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public unsafe delegate void GetFieldCallBack(byte* pResult, int resultBufLen, bool isAS3, int fieldnumber);
+    public GetFieldCallBack pGetField; // Ensure it doesn't get garbage collected
+    private unsafe void GetFieldHandler(byte* pResult, int resultBufLen, bool isAS3, int fieldnumber) {
+      string result = UC.Getfield(isAS3, fieldnumber);
+
+      // TOOD: how to do the string copy right!?
+      int len = result.Length < resultBufLen + 1 ? result.Length : resultBufLen - 1;
+
+      for (int i = 0; i < len; i++)
+      {
+        pResult[i] = (byte)result[i];
+      }
+
+      pResult[len] = (byte)'\0';
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);
     public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected
+    private double GetFieldDoubleHandler(bool isAS3, int fieldnumber) {
+      return UC.Getfielddouble(isAS3, fieldnumber);
+    }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool IsMovingCallBack();
-    public IsMovingCallBack pIsMoving;
-
+    public IsMovingCallBack pIsMoving; // Ensure it doesn't get garbage collected
+    private bool IsMovingHandler() {
+      return UC.IsMoving();
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct PluginInterfaceEntry {
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetFieldCallBack pGetField;
+
       [MarshalAs(UnmanagedType.FunctionPtr)]
       public GetFieldDoubleCallBack pGetFieldDouble;
 
@@ -51,14 +76,6 @@ namespace Plugins {
     public static unsafe extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble,
         PluginInterfaceEntry pInterface);
 
-    private double GetFieldDoubleHandler(bool isAS3, int fieldnumber) {
-      return UC.Getfielddouble(isAS3, fieldnumber);
-    }
-
-    private bool IsMovingHandler() {
-      return UC.IsMoving();
-    }
-
     public Plugininterface.Entry UC;
     PluginForm myform;
     bool isFirstCycle = true;
@@ -67,6 +84,7 @@ namespace Plugins {
 
     public unsafe UCCNCplugin() {
       // Use instance variables to ensure the pointers doesn't get garbage collected:
+      pGetField = new GetFieldCallBack(GetFieldHandler);
       pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
       pIsMoving = new IsMovingCallBack(IsMovingHandler);
       // --
@@ -74,6 +92,7 @@ namespace Plugins {
       PluginInterfaceEntry uc = new PluginInterfaceEntry();
       uc.pGetFieldDouble = pGetFieldDouble;
       uc.pIsMoving = pIsMoving;
+      uc.pGetField = pGetField;
 
       setCallBacks(pGetFieldDouble, uc);
     }
@@ -156,8 +175,8 @@ namespace Plugins {
       try {
         onTick();
       }
-      catch (Exception) {
-        MessageBox.Show("Exception in msg-flow pluging!", "Error in Loop_event");
+      catch (Exception e) {
+        MessageBox.Show(String.Format("Exception in msg-flow pluging!\n {0}", e.StackTrace), "Error in Loop_event");
       }
 
       loopworking = false;

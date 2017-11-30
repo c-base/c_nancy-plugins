@@ -12,19 +12,24 @@ using namespace std;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
 constexpr const char* PLUGIN_NAME     = "msg-flo (c++)";
-constexpr const char* PLUGIN_VERSION  = "1.2000";
+constexpr const char* PLUGIN_VERSION  = "1.3000";
 
 constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
 constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
 constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 
-double uCgetFieldDouble(bool isAS3, int fieldnumber);
-bool uCisMoving();
+extern "C" {
+  void    __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
+  double  __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
+  bool    __cdecl uCisMoving();
+}
 
+using GetFieldFunc = decltype(uCgetField);
 using GetFieldDoubleFunc = decltype(uCgetFieldDouble);
 using IsMovingFunc = decltype(uCisMoving);
 
 struct PluginInterfaceEntry {
+  GetFieldFunc* pGetField;
   GetFieldDoubleFunc* pGetFieldDouble;
   IsMovingFunc* pIsMoving;
 };

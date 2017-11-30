@@ -1,7 +1,11 @@
 ﻿#ifndef _TYPES_H
 #define _TYPES_H
 
-enum class Fields {
+//--------------------------------------------------------------------------------------------------------------
+// UcncField
+//--------------------------------------------------------------------------------------------------------------
+
+enum class UcncField : int {
   Xaxissteppin                      = 1,
   Xaxisdirpin                       = 2,
   Xaxislimitminuspin                = 3,
@@ -1306,7 +1310,11 @@ enum class Fields {
   Arcradiustolerance                = 2437,
 };
 
-enum class Leds {
+//--------------------------------------------------------------------------------------------------------------
+// UcncLed
+//--------------------------------------------------------------------------------------------------------------
+
+enum class UcncLed : int {
   OutputPT1PN1            = 1,	  // Indicates the actual logic state of port#1 pin#1.
   OutputPT1PN2            = 2,	  // Indicates the actual logic state of port#1 pin#2.
   OutputPT1PN3            = 3,	  // Indicates the actual logic state of port#1 pin#3.
@@ -1515,7 +1523,11 @@ enum class Leds {
   M1optionalstopenabled   = 247,	// On when the M1 optional stop is enabled
 };
 
-enum class Buttons {
+//--------------------------------------------------------------------------------------------------------------
+// UcncButton
+//--------------------------------------------------------------------------------------------------------------
+
+enum class UcncButton : int {
   ZeroX                           = 100, // Zeros the X axis position.
   ZeroY                           = 101, // Zeros the Y axis position.
   ZeroZ                           = 102, // Zeros the Z axis position.
