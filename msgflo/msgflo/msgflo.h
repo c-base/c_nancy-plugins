@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include "singleton.h"
+#include "types.h"
 #include "paho.h"
 
 using namespace std;
