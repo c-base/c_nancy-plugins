@@ -21,16 +21,19 @@ constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 extern "C" {
   void    __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
   double  __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
+  bool    __cdecl uCGetLed(UcncLed led);
   bool    __cdecl uCisMoving();
 }
 
-using GetFieldFunc = decltype(uCgetField);
-using GetFieldDoubleFunc = decltype(uCgetFieldDouble);
-using IsMovingFunc = decltype(uCisMoving);
+using GetFieldFunc        = decltype(uCgetField);
+using GetFieldDoubleFunc  = decltype(uCgetFieldDouble);
+using GetLedFunc          = decltype(uCGetLed);
+using IsMovingFunc        = decltype(uCisMoving);
 
 struct PluginInterfaceEntry {
   GetFieldFunc* pGetField;
   GetFieldDoubleFunc* pGetFieldDouble;
+  GetLedFunc* pGetLed;
   IsMovingFunc* pIsMoving;
 };
 

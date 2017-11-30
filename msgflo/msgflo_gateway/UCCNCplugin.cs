@@ -54,6 +54,13 @@ namespace Plugins {
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate bool GetLedCallBack(int ledNumber);
+    public GetLedCallBack pGetLed; // Ensure it doesn't get garbage collected
+    private bool GetLedHandler(int ledNumber) {
+      return UC.GetLED(ledNumber);
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool IsMovingCallBack();
     public IsMovingCallBack pIsMoving; // Ensure it doesn't get garbage collected
     private bool IsMovingHandler() {
@@ -70,6 +77,9 @@ namespace Plugins {
 
       [MarshalAs(UnmanagedType.FunctionPtr)]
       public IsMovingCallBack pIsMoving;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetLedCallBack pGetLed;
     }
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -86,13 +96,16 @@ namespace Plugins {
       // Use instance variables to ensure the pointers doesn't get garbage collected:
       pGetField = new GetFieldCallBack(GetFieldHandler);
       pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
+      pGetLed = new GetLedCallBack(GetLedHandler);
       pIsMoving = new IsMovingCallBack(IsMovingHandler);
       // --
 
       PluginInterfaceEntry uc = new PluginInterfaceEntry();
-      uc.pGetFieldDouble = pGetFieldDouble;
-      uc.pIsMoving = pIsMoving;
       uc.pGetField = pGetField;
+      uc.pGetFieldDouble = pGetFieldDouble;
+      uc.pGetLed = pGetLed;
+      uc.pIsMoving = pIsMoving;
+
 
       setCallBacks(pGetFieldDouble, uc);
     }
