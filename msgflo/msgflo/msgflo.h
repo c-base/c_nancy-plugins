@@ -19,10 +19,10 @@ constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
 constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 
 extern "C" {
-  void    __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
-  double  __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
-  bool    __cdecl uCGetLed(UcncLed led);
-  bool    __cdecl uCisMoving();
+  void   __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
+  double __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
+  bool   __cdecl uCGetLed(UcncLed led);
+  bool   __cdecl uCisMoving();
 }
 
 using GetFieldFunc        = decltype(uCgetField);
@@ -68,6 +68,7 @@ private:
   long lastTick2_{0};
   Position position_{0};
   PluginInterfaceEntry UC{0};
+  bool isMilling_{false};
 };
 
 #endif // _MSFGLO_H

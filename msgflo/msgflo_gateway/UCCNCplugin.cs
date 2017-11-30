@@ -106,7 +106,6 @@ namespace Plugins {
       uc.pGetLed = pGetLed;
       uc.pIsMoving = pIsMoving;
 
-
       setCallBacks(pGetFieldDouble, uc);
     }
 
