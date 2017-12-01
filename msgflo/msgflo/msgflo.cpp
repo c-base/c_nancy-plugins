@@ -1,10 +1,7 @@
 ﻿#include <time.h>
 #include <limits.h>
-#include "json.hpp"
 #include "debug.h"
 #include "msgflo.h"
-
-using json = nlohmann::json;
 
 MsgFlo::MsgFlo() {
 #ifdef _DEBUG
@@ -22,24 +19,37 @@ MsgFlo::MsgFlo() {
   dllPath += "Plugins\\";
   dllPath += dllName;
 
-  printf("Paho path is: %s", pExePath);
+  dbg("Paho path is: %s", pExePath);
 
   pPaho_ = new Paho(dllPath);
 }
 
-
 MsgFlo::~MsgFlo() {
+  trace();
+
   if(pPaho_)
     delete pPaho_;
-
-  trace();
 
 #ifdef _DEBUG
   detachDebugConsole();
 #endif
 }
 
-void MsgFlo::setCallBacks(GetFieldDoubleFunc* pGetFieldDouble, PluginInterfaceEntry uc) {
+void MsgFlo::mqttConect() {
+  pPaho_->connect(MQTT_BROKER_HOSTNAME, MQTT_CLIENT_ID);
+}
+
+void MsgFlo::mqttDisconnect() {
+  pPaho_->disconnect();
+}
+
+void MsgFlo::mqttPublish(string subTopic, const json& jsonObj, MsgRetain retain) {
+  string jsonStr = jsonObj.dump();
+
+  pPaho_->publish(baseTopic_ + subTopic, jsonStr.c_str(), jsonStr.length(), 1, retain == MsgRetain::Retain);
+}
+
+void MsgFlo::setCallBacks(PluginInterfaceEntry uc) {
   trace();
 
   UC = uc;
@@ -48,129 +58,144 @@ void MsgFlo::setCallBacks(GetFieldDoubleFunc* pGetFieldDouble, PluginInterfaceEn
 void MsgFlo::onFirstCycle() {
   trace();
 
-  pPaho_->connect(MQTT_BROKER_HOSTNAME, MQTT_CLIENT_ID);
-  pPaho_->publish(baseTopic_ + "online", "true", 4, 1, true);
+  mqttConect();
 
-  lastTick_ = clock();
-  lastTick2_ = clock();
+  json j = true;
+  mqttPublish("online", j, MsgRetain::Retain);
 }
 
 void MsgFlo::onTick() {
-  long tick = clock();
-  long diffSeconds = (tick - lastTick_) / 1000;
-  long diffMs2 = (tick - lastTick2_);
+  long timeMs = clock();
 
-  bool isMoving = UC.pGetLed(UcncLed::Run);
-  bool isMilling = UC.pGetLed(UcncLed::Cyclestart);
+  if (timeMs < 2000)
+    return;
 
-  if (isMilling != isMilling_) {
-    isMilling_ = isMilling;
+  handleDiscovery(timeMs);
+  handlePositionState(timeMs);
+  handleMillingState(timeMs);
+  handleWorkTime(timeMs);
+}
 
-    json milling;
-    milling["milling"] = isMilling;
+void MsgFlo::handleDiscovery(long timeMs) {
+  // TODO: only update every minute:
+  static long lastTick = 0;
 
-    string millingStr = milling.dump();
-    pPaho_->publish(baseTopic_ + "milling", millingStr.c_str(), millingStr.length(), 1, true);
+  if ((timeMs - lastTick < 60 * 1000) && lastTick != 0)
+    return;
+
+  dbg("MsgFlo::handleDiscovery; timeMs=%d, lastTick=%d\n", timeMs, lastTick);
+
+  json j;
+  j["protocol"] = "discovery";
+  j["command"] = "participant";
+
+  json payload;
+  payload["component"] = "c-base/c_nancy";
+  payload["label"] = "CNC mill status";
+  payload["icon"] = "scissors";
+  payload["inports"] = json::array();
+
+  json outports = json::array();
+  json onlinePort;
+  onlinePort["id"] = "online";
+  onlinePort["type"] = "boolean";
+  onlinePort["queue"] = baseTopic_ + "online";
+
+  json millingPort;
+  millingPort["id"] = "milling";
+  millingPort["type"] = "boolean";
+  millingPort["queue"] = baseTopic_ + "milling";
+
+  json positionPort;
+  positionPort["id"] = "position";
+  positionPort["type"] = "object";
+  positionPort["queue"] = baseTopic_ + "position";
+
+  json worktimePort;
+  worktimePort["id"] = "worktime";
+  worktimePort["type"] = "String";
+  worktimePort["queue"] = baseTopic_ + "worktime";
+
+  outports.push_back(onlinePort);
+  outports.push_back(millingPort);
+  outports.push_back(positionPort);
+  outports.push_back(worktimePort);
+
+  payload["outports"] = outports;
+
+  j["role"] = "c_nancy";
+  j["id"] = "c_nancy";
+  j["payload"] = payload;
+
+  printf("payload object:\n---\n%s\n---\n", j.dump(4).c_str());
+
+  mqttPublish("fbp", j);
+
+  lastTick = timeMs;
+}
+
+bool MsgFlo::isMilling() {
+  return UC.pGetLed(UcncLed::Cyclestart);
+}
+
+void MsgFlo::handleMillingState(long timeMs) {
+  bool m = isMilling();
+  dbg("Is milling: %d\n", m ? 1 : 0);
+
+  if (isMilling_ != m) {
+    isMilling_ = m;
+
+    json j = m;
+    mqttPublish("milling", j);
   }
+}
 
-  if (diffMs2 >= 250) {
-    position_.x = UC.pGetFieldDouble(true, UcncField::XposDRO) / 10000.0;
-    position_.y = UC.pGetFieldDouble(true, UcncField::YposDRO) / 10000.0;
-    position_.z = UC.pGetFieldDouble(true, UcncField::ZposDRO) / 10000.0;
-    position_.a = UC.pGetFieldDouble(true, UcncField::AposDRO) / 10000.0;
-    position_.b = UC.pGetFieldDouble(true, UcncField::BposDRO) / 10000.0;
-    position_.c = UC.pGetFieldDouble(true, UcncField::CposDRO) / 10000.0;
+void MsgFlo::handlePositionState(long timeMs) {
+  bool b = UC.pIsMoving();
 
-    if (isMoving) {
-      json position;
-      position["X"] = position_.x;
-      position["Y"] = position_.y;
-      position["Z"] = position_.z;
-      position["A"] = position_.a;
-      position["B"] = position_.b;
-      position["C"] = position_.c;
+  dbg("Is moving:  %d\n", b ? 1 : 0);
 
-      string positionStr = position.dump();
-      pPaho_->publish(baseTopic_ + "position", positionStr.c_str(), positionStr.length(), 1, false);
-    }
+  if (!b)
+    return;
 
-    if (isMilling) {
-      static int _cnt = 0; // temporary hack to only update every second
+  json j;
+  j["X"] = UC.pGetFieldDouble(true, UcncField::XposDRO) / 10000.0;
+  j["Y"] = UC.pGetFieldDouble(true, UcncField::YposDRO) / 10000.0;
+  j["Z"] = UC.pGetFieldDouble(true, UcncField::ZposDRO) / 10000.0;
+  j["A"] = UC.pGetFieldDouble(true, UcncField::AposDRO) / 10000.0;
+  j["B"] = UC.pGetFieldDouble(true, UcncField::BposDRO) / 10000.0;
+  j["C"] = UC.pGetFieldDouble(true, UcncField::CposDRO) / 10000.0;
 
-      if (_cnt++ == 2) {
-        _cnt = 0;
+  mqttPublish("position", j);
+}
 
-        char pField[256];
-        UC.pGetField(pField, sizeof(pField), true, UcncField::Worktimer);
+void MsgFlo::handleWorkTime(long timeMs) {
+  long lastTick = 0;
 
-        json worktime;
-        worktime["worktime"] = pField;
+  // Only update every 250 ms:
+  if (lastTick != 0 && timeMs - lastTick < 250)
+    return;
 
-        string worktimeStr = worktime.dump();
-        pPaho_->publish(baseTopic_ + "worktime", worktimeStr.c_str(), worktimeStr.length(), 1, true);
-      }
-    }
+  if (!isMilling())
+    return;
 
-    lastTick2_ = clock();
-  }
+  char pField[256];
+  UC.pGetField(pField, sizeof(pField), true, UcncField::Worktimer);
 
-  if (diffSeconds >= 60) {
-    json root;
-    root["protocol"] = "discovery";
-    root["command"] = "participant";
+  json worktime;
+  worktime["worktime"] = pField;
 
-    json payload;
-    payload["component"] = "c-base/c_nancy";
-    payload["label"] = "CNC mill status";
-    payload["icon"] = "scissors";
-    payload["inports"] = json::array();
+  string worktimeStr = worktime.dump();
+  pPaho_->publish(baseTopic_ + "worktime", worktimeStr.c_str(), worktimeStr.length(), 1, false);
 
-    json outports = json::array();
-    json onlinePort;
-    onlinePort["id"] = "online";
-    onlinePort["type"] = "boolean";
-    onlinePort["queue"] = baseTopic_ + "online";
-
-    json millingPort;
-    millingPort["id"] = "milling";
-    millingPort["type"] = "boolean";
-    millingPort["queue"] = baseTopic_ + "milling";
-
-    json positionPort;
-    positionPort["id"] = "position";
-    positionPort["type"] = "object";
-    positionPort["queue"] = baseTopic_ + "position";
-
-    json worktimePort;
-    worktimePort["id"] = "worktime";
-    worktimePort["type"] = "String";
-    worktimePort["queue"] = baseTopic_ + "worktime";
-
-    outports.push_back(onlinePort);
-    outports.push_back(millingPort);
-    outports.push_back(positionPort);
-    outports.push_back(worktimePort);
-
-    payload["outports"] = outports;
-
-    root["role"] = "c_nancy";
-    root["id"] = "c_nancy";
-    root["payload"] = payload;
-
-    printf("payload object:\n---\n%s\n---\n", root.dump(4).c_str());
-
-    string discoveryStr = root.dump();
-    pPaho_->publish("fbp", discoveryStr.c_str(), discoveryStr.length(), 1, true);
-
-    lastTick_ = clock();
-  }
+  lastTick = timeMs;
 }
 
 void MsgFlo::onShutdown() {
   trace();
 
-  pPaho_->publish(baseTopic_ + "online", "false", 5, 1, true);
-  pPaho_->disconnect();
+  json j = false;
+  mqttPublish("online", j, MsgRetain::Retain);
 }
 
 void MsgFlo::buttonPressEvent(int buttonNumber, bool onScreen) {

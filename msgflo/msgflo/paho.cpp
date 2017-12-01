@@ -87,7 +87,7 @@ bool Paho::disconnect() {
 }
 
 bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, bool retain) {
-  trace();
+  // trace();
 
   MQTTClient_message msg;
   msg.struct_id[0] = 'M';

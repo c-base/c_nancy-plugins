@@ -29,6 +29,13 @@ namespace Plugins {
     public static extern void getproperties_event(StringBuilder author, StringBuilder pluginName,
         StringBuilder pluginVersion);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate bool IsMovingCallBack();
+    public IsMovingCallBack pIsMoving; // Ensure it doesn't get garbage collected
+    private unsafe bool IsMovingHandler() {
+      return UC.IsMoving();
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public unsafe delegate void GetFieldCallBack(byte* pResult, int resultBufLen, bool isAS3, int fieldnumber);
     public GetFieldCallBack pGetField; // Ensure it doesn't get garbage collected
@@ -60,13 +67,6 @@ namespace Plugins {
       return UC.GetLED(ledNumber);
     }
 
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate bool IsMovingCallBack();
-    public IsMovingCallBack pIsMoving; // Ensure it doesn't get garbage collected
-    private bool IsMovingHandler() {
-      return UC.IsMoving();
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct PluginInterfaceEntry {
       [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -76,15 +76,14 @@ namespace Plugins {
       public GetFieldDoubleCallBack pGetFieldDouble;
 
       [MarshalAs(UnmanagedType.FunctionPtr)]
-      public IsMovingCallBack pIsMoving;
+      public GetLedCallBack pGetLed;
 
       [MarshalAs(UnmanagedType.FunctionPtr)]
-      public GetLedCallBack pGetLed;
+      public IsMovingCallBack pIsMoving;
     }
 
     [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static unsafe extern void setCallBacks(GetFieldDoubleCallBack pGetFieldDouble,
-        PluginInterfaceEntry pInterface);
+    public static unsafe extern void setCallBacks(PluginInterfaceEntry pInterface);
 
     public Plugininterface.Entry UC;
     PluginForm myform;
@@ -106,7 +105,7 @@ namespace Plugins {
       uc.pGetLed = pGetLed;
       uc.pIsMoving = pIsMoving;
 
-      setCallBacks(pGetFieldDouble, uc);
+      setCallBacks(uc);
     }
 
     // Called when the plugin is initialised.
@@ -177,9 +176,6 @@ namespace Plugins {
         return;
 
       if (isFirstCycle) {
-
-
-
         isFirstCycle = false;
         onFirstCycle();
       }

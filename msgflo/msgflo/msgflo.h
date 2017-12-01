@@ -4,11 +4,13 @@
 #include <string>
 #include <stdio.h>
 #include <windows.h>
+#include "json.hpp"
 #include "singleton.h"
 #include "types.h"
 #include "paho.h"
 
 using namespace std;
+using json = nlohmann::json;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
 constexpr const char* PLUGIN_NAME     = "msg-flo (c++)";
@@ -19,10 +21,10 @@ constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
 constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 
 extern "C" {
+  bool   __cdecl uCisMoving();
   void   __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
   double __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
   bool   __cdecl uCGetLed(UcncLed led);
-  bool   __cdecl uCisMoving();
 }
 
 using GetFieldFunc        = decltype(uCgetField);
@@ -37,13 +39,9 @@ struct PluginInterfaceEntry {
   IsMovingFunc* pIsMoving;
 };
 
-struct Position {
-  double x;
-  double y;
-  double z;
-  double a;
-  double b;
-  double c;
+enum class MsgRetain {
+  DoNotRetain,
+  Retain,
 };
 
 class MsgFlo : public Singleton<MsgFlo> {
@@ -51,7 +49,7 @@ public:
   MsgFlo();
   ~MsgFlo();
 
-  void setCallBacks(GetFieldDoubleFunc* pGetFieldDouble, PluginInterfaceEntry uc);
+  void setCallBacks(PluginInterfaceEntry uc);
   void onFirstCycle();
   void onTick();
   void onShutdown();
@@ -61,12 +59,21 @@ public:
   void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion);
 
 private:
+  void mqttConect();
+  void mqttDisconnect();
+  void mqttPublish(string subTopic, const json& jsonObj, MsgRetain retain = MsgRetain::DoNotRetain);
+
+  bool isMilling();
+
+  // Tick handlers:
+  void handleDiscovery(long timeMs);
+  void handleMillingState(long timeMs);
+  void handlePositionState(long timeMs);
+  void handleWorkTime(long timeMs);
+
   Paho* pPaho_{ nullptr };
   string brokerHostname_{MQTT_BROKER_HOSTNAME};
   string baseTopic_{MQTT_BASE_TOPIC};
-  long lastTick_{0};
-  long lastTick2_{0};
-  Position position_{0};
   PluginInterfaceEntry UC{0};
   bool isMilling_{false};
 };
