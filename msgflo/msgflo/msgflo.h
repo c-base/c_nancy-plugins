@@ -12,7 +12,7 @@ using namespace std;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
 constexpr const char* PLUGIN_NAME     = "msg-flo (c++)";
-constexpr const char* PLUGIN_VERSION  = "1.3000";
+constexpr const char* PLUGIN_VERSION  = __DATE__;
 
 constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
 constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
