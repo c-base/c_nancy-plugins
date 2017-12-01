@@ -43,10 +43,15 @@ void MsgFlo::mqttDisconnect() {
   pPaho_->disconnect();
 }
 
-void MsgFlo::mqttPublish(string subTopic, const json& jsonObj, MsgRetain retain) {
+void MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const json& jsonObj,
+    MsgRetain retain) {
   string jsonStr = jsonObj.dump();
 
-  pPaho_->publish(baseTopic_ + subTopic, jsonStr.c_str(), jsonStr.length(), 1, retain == MsgRetain::Retain);
+  pPaho_->publish(baseTopic + subTopic, jsonStr.c_str(), jsonStr.length(), 1, retain == MsgRetain::Retain);
+}
+
+void MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
+  mqttPublish(baseTopic_, subTopic, jsonObj, retain);
 }
 
 void MsgFlo::setCallBacks(PluginInterfaceEntry uc) {
@@ -66,9 +71,6 @@ void MsgFlo::onFirstCycle() {
 
 void MsgFlo::onTick() {
   long timeMs = clock();
-
-  if (timeMs < 2000)
-    return;
 
   handleDiscovery(timeMs);
   handlePositionState(timeMs);
@@ -129,7 +131,7 @@ void MsgFlo::handleDiscovery(long timeMs) {
 
   printf("payload object:\n---\n%s\n---\n", j.dump(4).c_str());
 
-  mqttPublish("fbp", j);
+  mqttPublish("fbp", "", j);
 
   lastTick = timeMs;
 }
@@ -140,7 +142,6 @@ bool MsgFlo::isMilling() {
 
 void MsgFlo::handleMillingState(long timeMs) {
   bool m = isMilling();
-  dbg("Is milling: %d\n", m ? 1 : 0);
 
   if (isMilling_ != m) {
     isMilling_ = m;
@@ -152,8 +153,6 @@ void MsgFlo::handleMillingState(long timeMs) {
 
 void MsgFlo::handlePositionState(long timeMs) {
   bool b = UC.pIsMoving();
-
-  dbg("Is moving:  %d\n", b ? 1 : 0);
 
   if (!b)
     return;
@@ -182,11 +181,8 @@ void MsgFlo::handleWorkTime(long timeMs) {
   char pField[256];
   UC.pGetField(pField, sizeof(pField), true, UcncField::Worktimer);
 
-  json worktime;
-  worktime["worktime"] = pField;
-
-  string worktimeStr = worktime.dump();
-  pPaho_->publish(baseTopic_ + "worktime", worktimeStr.c_str(), worktimeStr.length(), 1, false);
+  json j = pField;
+  mqttPublish("worktime", j);
 
   lastTick = timeMs;
 }

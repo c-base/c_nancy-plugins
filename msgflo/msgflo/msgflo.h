@@ -14,7 +14,7 @@ using json = nlohmann::json;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
 constexpr const char* PLUGIN_NAME     = "msg-flo (c++)";
-constexpr const char* PLUGIN_VERSION  = __DATE__;
+constexpr const char* PLUGIN_VERSION  = "01.12.17";
 
 constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
 constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
@@ -61,7 +61,9 @@ public:
 private:
   void mqttConect();
   void mqttDisconnect();
-  void mqttPublish(string subTopic, const json& jsonObj, MsgRetain retain = MsgRetain::DoNotRetain);
+  void mqttPublish(const string& topic, const string& subTopic, const json& jsonObj,
+      MsgRetain retain = MsgRetain::DoNotRetain);
+  void mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain = MsgRetain::DoNotRetain);
 
   bool isMilling();
 
