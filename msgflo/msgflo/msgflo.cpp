@@ -11,7 +11,7 @@ MsgFlo::MsgFlo() {
   attachDebugConsole();
 #endif
   trace();
-  
+
   string dllName = "paho-mqtt3c.dll";
   char pExePath[256];
 
@@ -26,6 +26,7 @@ MsgFlo::MsgFlo() {
 
   pPaho_ = new Paho(dllPath);
 }
+
 
 MsgFlo::~MsgFlo() {
   if(pPaho_)
