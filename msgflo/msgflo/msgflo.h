@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "json.hpp"
 #include "singleton.h"
-#include "types.h"
+#include "uccnc_types.h"
 #include "paho.h"
 
 using namespace std;
