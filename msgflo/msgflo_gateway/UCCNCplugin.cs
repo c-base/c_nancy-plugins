@@ -54,6 +54,13 @@ namespace Plugins {
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate int GetFieldIntCallBack(bool isAS3, int fieldnumber);
+    public GetFieldIntCallBack pGetFieldInt; // Ensure it doesn't get garbage collected
+    private int GetFieldIntHandler(bool isAS3, int fieldnumber) {
+        return UC.Getfieldint(isAS3, fieldnumber);
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);
     public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected
     private double GetFieldDoubleHandler(bool isAS3, int fieldnumber) {
@@ -115,6 +122,9 @@ namespace Plugins {
       public GetFieldCallBack pGetField;
 
       [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetFieldIntCallBack pGetFieldInt;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
       public GetFieldDoubleCallBack pGetFieldDouble;
 
       [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -154,6 +164,7 @@ namespace Plugins {
     public unsafe UCCNCplugin() {
       // Use instance variables to ensure the pointers doesn't get garbage collected:
       pGetField       = new GetFieldCallBack(GetFieldHandler);
+      pGetFieldInt    = new GetFieldIntCallBack(GetFieldIntHandler);
       pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
       pGetLed         = new GetLedCallBack(GetLedHandler);
       pIsMoving       = new IsMovingCallBack(IsMovingHandler);
@@ -167,6 +178,7 @@ namespace Plugins {
 
       PluginInterfaceEntry uc = new PluginInterfaceEntry();
       uc.pGetField       = pGetField;
+      uc.pGetFieldInt    = pGetFieldInt;
       uc.pGetFieldDouble = pGetFieldDouble;
       uc.pGetLed         = pGetLed;
       uc.pIsMoving       = pIsMoving;
@@ -230,7 +242,7 @@ namespace Plugins {
       try {
         loopstop = true;
         onShutdown();
-        myform.Close();                
+        myform.Close();
       }
       catch (Exception) {
         MessageBox.Show("Exception in msg-flow pluging!", "Error in Shutdown_event");

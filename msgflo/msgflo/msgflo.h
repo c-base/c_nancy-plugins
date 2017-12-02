@@ -23,6 +23,7 @@ constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 extern "C" {
   bool   __cdecl uCisMoving();
   void   __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UccncField field);
+  int    __cdecl uCgetFieldInt(bool isAS3, UccncField field);
   double __cdecl uCgetFieldDouble(bool isAS3, UccncField field);
   bool   __cdecl uCGetLed(UccncLed led);
   double __cdecl uCgetXpos();
@@ -34,6 +35,7 @@ extern "C" {
 }
 
 using GetFieldFunc        = decltype(uCgetField);
+using GetFieldIntFunc     = decltype(uCgetFieldInt);
 using GetFieldDoubleFunc  = decltype(uCgetFieldDouble);
 using GetLedFunc          = decltype(uCGetLed);
 using IsMovingFunc        = decltype(uCisMoving);
@@ -46,6 +48,7 @@ using GetCpos             = decltype(uCgetCpos);
 
 struct PluginInterfaceEntry {
   GetFieldFunc*       pGetField;
+  GetFieldIntFunc*    pGetFieldInt;
   GetFieldDoubleFunc* pGetFieldDouble;
   GetLedFunc*         pGetLed;
   IsMovingFunc*       pIsMoving;
