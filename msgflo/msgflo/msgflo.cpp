@@ -1,5 +1,6 @@
 ﻿#include <time.h>
 #include <limits.h>
+#include <fstream>
 #include "debug.h"
 #include "msgflo.h"
 
@@ -152,7 +153,8 @@ bool MsgFlo::isMilling() {
 }
 
 void MsgFlo::handleMillingState(long timeMs) {
-  static int _currentLine = 0;
+  static int _lastLine = 0;
+  static ifstream _gCodeFile;
 
   bool m = isMilling();
 
@@ -163,11 +165,38 @@ void MsgFlo::handleMillingState(long timeMs) {
     mqttPublish("milling", j);
 
     if (isMilling_) {
-      char pFileName[256];
-      UC.pGetField(pFileName, sizeof(pFileName), true, UccncField::Diagnostics_Filename);
+      char pField[256];
+      UC.pGetField(pField, sizeof(pField), true, UccncField::Diagnostics_Filename);
 
-      dbg("Is milling file: %s\n", pFileName);
+      // The field has a leading white space (0x20) which will cause an error when trying to
+      // open the file. Therefore this leading whitespace will be skipped:
+
+      const char* pFileName = &pField[1];
+      _gCodeFile.open(pFileName);
+
+      if (!_gCodeFile.is_open()) {
+        dbg("Error: failed to open gcode file: %s!\n", pFileName);
+      }
     }
+    else
+      _gCodeFile.close();
+  }
+
+  int currentLine = UC.pGetFieldInt(true, UccncField::Setnextlinefield);
+
+  if (m && _lastLine != currentLine) {
+    string line;
+
+    if (currentLine < _lastLine)
+      _lastLine = 0;
+
+    // Skip lines if needed:
+    for(int i = 0; i < currentLine - _lastLine; i++)
+      getline(_gCodeFile, line);
+
+    dbg("Line: %d: %s\n", currentLine, line.c_str());
+
+    _lastLine = currentLine;
   }
 
   // TODO: publish gcode
