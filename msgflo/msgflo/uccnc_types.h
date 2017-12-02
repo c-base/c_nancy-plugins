@@ -954,7 +954,9 @@ enum class UccncField : int {
   ToolZoffset94                     = 994,
   ToolZoffset95                     = 995,
   ToolZoffset96                     = 996,
-  // R*	949-2000
+  // R*	949-1000 (reserved)
+  Mdi                               = 1000, // Not documented
+  // R* 1001-2000 (reserved)
   THCAntidivevelocitypercentage     = 2001,
   Analog_inputvalue3                = 2002,
   Analog_inputvalue4                = 2003,

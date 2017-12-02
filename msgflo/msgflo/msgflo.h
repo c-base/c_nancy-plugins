@@ -71,17 +71,18 @@ public:
   void onFirstCycle();
   void onTick();
   void onShutdown();
-  void buttonPressEvent(UccncButton buttonNumber, bool onScreen);
-  void textFieldClickEvent(int labelNumber, bool isMainScreen);
-  void textFieldTextTypedEvent(int labelnumber, bool isMainScreen, const char* pText);
+  void buttonPressEvent(UccncButton button, bool onScreen);
+  void textFieldClickEvent(UccncField label, bool isMainScreen);
+  void textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText);
   void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion);
 
 private:
-  void mqttConect();
+  bool mqttConnect();
   void mqttDisconnect();
-  void mqttPublish(const string& topic, const string& subTopic, const json& jsonObj,
+  bool mqttIsConnected();
+  bool mqttPublish(const string& topic, const string& subTopic, const json& jsonObj,
       MsgRetain retain = MsgRetain::DoNotRetain);
-  void mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain = MsgRetain::DoNotRetain);
+  bool mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain = MsgRetain::DoNotRetain);
 
   bool isMilling();
 

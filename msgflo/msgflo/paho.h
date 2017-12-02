@@ -15,6 +15,7 @@ public:
 
   bool connect(const char* pBrokerHostName, const char* pClientId);
   bool disconnect();
+  bool isConnected();
   bool publish(const string& topic, const void* pPayload, int len, int qos, bool retain);
 
 private:

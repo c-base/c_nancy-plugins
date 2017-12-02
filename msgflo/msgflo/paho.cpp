@@ -86,6 +86,12 @@ bool Paho::disconnect() {
   return true;
 }
 
+bool Paho::isConnected() {
+  // trace()
+
+  return pClientIsConnectedFunc_(hMqttClient_);
+}
+
 bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, bool retain) {
   // trace();
 

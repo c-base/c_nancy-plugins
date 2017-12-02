@@ -16,7 +16,7 @@ MsgFlo::MsgFlo() {
 
   string exePath = pExePath;
   string dllPath = exePath.substr(0, exePath.find_last_of("\\") + 1);
-  dllPath += "Plugins\\";
+  dllPath += "Plugins\\cpp\\";
   dllPath += dllName;
 
   dbg("Paho path is: %s\n", dllPath.c_str());
@@ -35,23 +35,27 @@ MsgFlo::~MsgFlo() {
 #endif
 }
 
-void MsgFlo::mqttConect() {
-  pPaho_->connect(MQTT_BROKER_HOSTNAME, MQTT_CLIENT_ID);
+bool MsgFlo::mqttConnect() {
+  return pPaho_->connect(MQTT_BROKER_HOSTNAME, MQTT_CLIENT_ID);
 }
 
 void MsgFlo::mqttDisconnect() {
   pPaho_->disconnect();
 }
 
-void MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const json& jsonObj,
+bool MsgFlo::mqttIsConnected() {
+  return pPaho_->isConnected();
+}
+
+bool MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const json& jsonObj,
     MsgRetain retain) {
   string jsonStr = jsonObj.dump();
 
-  pPaho_->publish(baseTopic + subTopic, jsonStr.c_str(), jsonStr.length(), 1, retain == MsgRetain::Retain);
+  return pPaho_->publish(baseTopic + subTopic, jsonStr.c_str(), jsonStr.length(), 1, retain == MsgRetain::Retain);
 }
 
-void MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
-  mqttPublish(baseTopic_, subTopic, jsonObj, retain);
+bool MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
+  return mqttPublish(baseTopic_, subTopic, jsonObj, retain);
 }
 
 void MsgFlo::setCallBacks(PluginInterfaceEntry uc) {
@@ -63,7 +67,10 @@ void MsgFlo::setCallBacks(PluginInterfaceEntry uc) {
 void MsgFlo::onFirstCycle() {
   trace();
 
-  mqttConect();
+  if (!mqttConnect())
+    dbg("Connection to MQTT broker '%s' failed!\n", MQTT_BROKER_HOSTNAME);
+  else
+    dbg("Connection to MQTT broker '%s' established\n", MQTT_BROKER_HOSTNAME);
 
   json j = true;
   mqttPublish("online", j, MsgRetain::Retain);
@@ -72,9 +79,13 @@ void MsgFlo::onFirstCycle() {
 void MsgFlo::onTick() {
   long timeMs = clock();
 
+  handleMillingState(timeMs);
+
+  if (!mqttIsConnected())
+    return;
+
   handleDiscovery(timeMs);
   handlePositionState(timeMs);
-  handleMillingState(timeMs);
   handleWorkTime(timeMs);
 }
 
@@ -141,6 +152,8 @@ bool MsgFlo::isMilling() {
 }
 
 void MsgFlo::handleMillingState(long timeMs) {
+  static int _currentLine = 0;
+
   bool m = isMilling();
 
   if (isMilling_ != m) {
@@ -148,7 +161,16 @@ void MsgFlo::handleMillingState(long timeMs) {
 
     json j = m;
     mqttPublish("milling", j);
+
+    if (isMilling_) {
+      char pFileName[256];
+      UC.pGetField(pFileName, sizeof(pFileName), true, UccncField::Diagnostics_Filename);
+
+      dbg("Is milling file: %s\n", pFileName);
+    }
   }
+
+  // TODO: publish gcode
 }
 
 void MsgFlo::handlePositionState(long timeMs) {
@@ -195,34 +217,43 @@ void MsgFlo::onShutdown() {
   mqttPublish("online", j, MsgRetain::Retain);
 }
 
-void MsgFlo::buttonPressEvent(UccncButton buttonNumber, bool onScreen) {
+void MsgFlo::buttonPressEvent(UccncButton button, bool onScreen) {
   // trace();
 
   if (onScreen) {
-    if (buttonNumber == UccncButton::Cyclestart) {
+    if (button == UccncButton::Cyclestart) {
       // TODO: implement
 
     }
   }
 }
 
-void MsgFlo::textFieldClickEvent(int labelNumber, bool isMainScreen) {
-  trace();
+void MsgFlo::textFieldClickEvent(UccncField label, bool isMainScreen) {
+  const char* pLabel;
 
-  if (isMainScreen) {
-    if (labelNumber == 1000) {
-      // TODO: implement
-    }
+  switch (label) {
+    case UccncField::Mdi:
+      pLabel = "Mdi";
+      break;
+
+    case UccncField::Setnextlinefield:
+      pLabel = "Setnextlinefield";
+      break;
+
+    default:
+      pLabel = "Unknown";
   }
+
+  dbg("textFieldClickEvent; label=%s, isMainScreen=%d\n", pLabel, isMainScreen);
 }
 
-void MsgFlo::textFieldTextTypedEvent(int labelNumber, bool isMainScreen, const char* pText) {
+void MsgFlo::textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText) {
   trace();
 
   if (isMainScreen) {
-    if (labelNumber == 1000) {
-      // TODO: implement
-    }
+    // if (labelNumber == 1000) {
+    //   // TODO: implement
+    // }
   }
 }
 

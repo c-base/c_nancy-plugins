@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace Plugins {
   public class UCCNCplugin { // Class name must be UCCNCplugin to work!
-    public const string cppDll = "msgflo.dll";
+    public const string cppDll = "cpp\\msgflo.dll";
 
     [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onFirstCycle();
@@ -230,7 +230,7 @@ namespace Plugins {
       try {
         loopstop = true;
         onShutdown();
-        myform.Close();
+        myform.Close();                
       }
       catch (Exception) {
         MessageBox.Show("Exception in msg-flow pluging!", "Error in Shutdown_event");
