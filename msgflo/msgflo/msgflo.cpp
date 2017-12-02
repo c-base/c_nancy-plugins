@@ -19,7 +19,7 @@ MsgFlo::MsgFlo() {
   dllPath += "Plugins\\";
   dllPath += dllName;
 
-  dbg("Paho path is: %s", pExePath);
+  dbg("Paho path is: %s\n", dllPath.c_str());
 
   pPaho_ = new Paho(dllPath);
 }
@@ -137,7 +137,7 @@ void MsgFlo::handleDiscovery(long timeMs) {
 }
 
 bool MsgFlo::isMilling() {
-  return UC.pGetLed(UcncLed::Cyclestart);
+  return UC.pGetLed(UccncLed::Cyclestart);
 }
 
 void MsgFlo::handleMillingState(long timeMs) {
@@ -152,9 +152,7 @@ void MsgFlo::handleMillingState(long timeMs) {
 }
 
 void MsgFlo::handlePositionState(long timeMs) {
-  bool b = UC.pIsMoving();
-
-  if (!b)
+  if (!UC.pIsMoving())
     return;
 
   json j;
@@ -182,7 +180,7 @@ void MsgFlo::handleWorkTime(long timeMs) {
     return;
 
   char pField[256];
-  UC.pGetField(pField, sizeof(pField), true, UcncField::Worktimer);
+  UC.pGetField(pField, sizeof(pField), true, UccncField::Worktimer);
 
   json j = pField;
   mqttPublish("worktime", j);
@@ -197,11 +195,11 @@ void MsgFlo::onShutdown() {
   mqttPublish("online", j, MsgRetain::Retain);
 }
 
-void MsgFlo::buttonPressEvent(int buttonNumber, bool onScreen) {
+void MsgFlo::buttonPressEvent(UccncButton buttonNumber, bool onScreen) {
   // trace();
 
   if (onScreen) {
-    if (buttonNumber == 128) {
+    if (buttonNumber == UccncButton::Cyclestart) {
       // TODO: implement
 
     }

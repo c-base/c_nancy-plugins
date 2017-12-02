@@ -44,7 +44,7 @@ void __cdecl onShutdown() {
 }
 
 extern "C" __declspec(dllexport)
-void __cdecl buttonpress_event(int buttonNumber, bool onScreen) {
+void __cdecl buttonpress_event(UccncButton buttonNumber, bool onScreen) {
   MsgFlo::getInstance()->buttonPressEvent(buttonNumber, onScreen);
 }
 

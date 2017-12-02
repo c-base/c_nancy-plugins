@@ -22,9 +22,9 @@ constexpr const char* MQTT_CLIENT_ID = "c_nancy";
 
 extern "C" {
   bool   __cdecl uCisMoving();
-  void   __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
-  double __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
-  bool   __cdecl uCGetLed(UcncLed led);
+  void   __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UccncField field);
+  double __cdecl uCgetFieldDouble(bool isAS3, UccncField field);
+  bool   __cdecl uCGetLed(UccncLed led);
   double __cdecl uCgetXpos();
   double __cdecl uCgetYpos();
   double __cdecl uCgetZpos();
@@ -71,7 +71,7 @@ public:
   void onFirstCycle();
   void onTick();
   void onShutdown();
-  void buttonPressEvent(int buttonNumber, bool onScreen);
+  void buttonPressEvent(UccncButton buttonNumber, bool onScreen);
   void textFieldClickEvent(int labelNumber, bool isMainScreen);
   void textFieldTextTypedEvent(int labelnumber, bool isMainScreen, const char* pText);
   void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion);

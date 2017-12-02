@@ -2,10 +2,10 @@
 #define _TYPES_H
 
 //--------------------------------------------------------------------------------------------------------------
-// UcncField
+// UccncField
 //--------------------------------------------------------------------------------------------------------------
 
-enum class UcncField : int {
+enum class UccncField : int {
   Xaxissteppin                      = 1,
   Xaxisdirpin                       = 2,
   Xaxislimitminuspin                = 3,
@@ -1311,10 +1311,10 @@ enum class UcncField : int {
 };
 
 //--------------------------------------------------------------------------------------------------------------
-// UcncLed
+// UccncLed
 //--------------------------------------------------------------------------------------------------------------
 
-enum class UcncLed : int {
+enum class UccncLed : int {
   OutputPT1PN1            = 1,	  // Indicates the actual logic state of port#1 pin#1.
   OutputPT1PN2            = 2,	  // Indicates the actual logic state of port#1 pin#2.
   OutputPT1PN3            = 3,	  // Indicates the actual logic state of port#1 pin#3.
@@ -1524,10 +1524,10 @@ enum class UcncLed : int {
 };
 
 //--------------------------------------------------------------------------------------------------------------
-// UcncButton
+// UccncButton
 //--------------------------------------------------------------------------------------------------------------
 
-enum class UcncButton : int {
+enum class UccncButton : int {
   ZeroX                           = 100, // Zeros the X axis position.
   ZeroY                           = 101, // Zeros the Y axis position.
   ZeroZ                           = 102, // Zeros the Z axis position.
