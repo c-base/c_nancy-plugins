@@ -13,8 +13,8 @@ using namespace std;
 using json = nlohmann::json;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
-constexpr const char* PLUGIN_NAME     = "msg-flo (c++)";
-constexpr const char* PLUGIN_VERSION  = "01.12.17";
+constexpr const char* PLUGIN_NAME     = "msgflo (c++)";
+constexpr const char* PLUGIN_VERSION  = "02.12.17";
 
 constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
 constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
@@ -25,18 +25,36 @@ extern "C" {
   void   __cdecl uCgetField(char* pResult, int resultBufLen, bool isAS3, UcncField field);
   double __cdecl uCgetFieldDouble(bool isAS3, UcncField field);
   bool   __cdecl uCGetLed(UcncLed led);
+  double __cdecl uCgetXpos();
+  double __cdecl uCgetYpos();
+  double __cdecl uCgetZpos();
+  double __cdecl uCgetApos();
+  double __cdecl uCgetBpos();
+  double __cdecl uCgetCpos();
 }
 
 using GetFieldFunc        = decltype(uCgetField);
 using GetFieldDoubleFunc  = decltype(uCgetFieldDouble);
 using GetLedFunc          = decltype(uCGetLed);
 using IsMovingFunc        = decltype(uCisMoving);
+using GetXpos             = decltype(uCgetXpos);
+using GetYpos             = decltype(uCgetYpos);
+using GetZpos             = decltype(uCgetZpos);
+using GetApos             = decltype(uCgetApos);
+using GetBpos             = decltype(uCgetBpos);
+using GetCpos             = decltype(uCgetCpos);
 
 struct PluginInterfaceEntry {
-  GetFieldFunc* pGetField;
+  GetFieldFunc*       pGetField;
   GetFieldDoubleFunc* pGetFieldDouble;
-  GetLedFunc* pGetLed;
-  IsMovingFunc* pIsMoving;
+  GetLedFunc*         pGetLed;
+  IsMovingFunc*       pIsMoving;
+  GetXpos*            pCgetXpos;
+  GetYpos*            pCgetYpos;
+  GetZpos*            pCgetZpos;
+  GetApos*            pCgetApos;
+  GetBpos*            pCgetBpos;
+  GetCpos*            pCgetCpos;
 };
 
 enum class MsgRetain {

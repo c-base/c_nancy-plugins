@@ -158,12 +158,15 @@ void MsgFlo::handlePositionState(long timeMs) {
     return;
 
   json j;
-  j["X"] = UC.pGetFieldDouble(true, UcncField::XposDRO) / 10000.0;
-  j["Y"] = UC.pGetFieldDouble(true, UcncField::YposDRO) / 10000.0;
-  j["Z"] = UC.pGetFieldDouble(true, UcncField::ZposDRO) / 10000.0;
-  j["A"] = UC.pGetFieldDouble(true, UcncField::AposDRO) / 10000.0;
-  j["B"] = UC.pGetFieldDouble(true, UcncField::BposDRO) / 10000.0;
-  j["C"] = UC.pGetFieldDouble(true, UcncField::CposDRO) / 10000.0;
+  j["X"] = UC.pCgetXpos();
+  j["Y"] = UC.pCgetYpos();
+  j["Z"] = UC.pCgetZpos();
+  j["A"] = UC.pCgetApos();
+  j["B"] = UC.pCgetBpos();
+  j["C"] = UC.pCgetCpos();
+
+  dbg(j.dump(4).c_str());
+  dbg("\n");
 
   mqttPublish("position", j);
 }

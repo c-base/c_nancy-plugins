@@ -7,25 +7,27 @@ using System.Runtime.CompilerServices;
 
 namespace Plugins {
   public class UCCNCplugin { // Class name must be UCCNCplugin to work!
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    public const string cppDll = "msgflo.dll";
+
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onFirstCycle();
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onTick();
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern bool onShutdown();
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void buttonpress_event(int buttonnumber, bool onscreen);
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void textfieldclick_event(int labelnumber, bool Ismainscreen);
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void textfieldtexttyped_event(int labelnumber, bool Ismainscreen, StringBuilder text);
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
     public static extern void getproperties_event(StringBuilder author, StringBuilder pluginName,
         StringBuilder pluginVersion);
 
@@ -46,9 +48,7 @@ namespace Plugins {
       int len = result.Length < resultBufLen + 1 ? result.Length : resultBufLen - 1;
 
       for (int i = 0; i < len; i++)
-      {
         pResult[i] = (byte)result[i];
-      }
 
       pResult[len] = (byte)'\0';
     }
@@ -67,6 +67,48 @@ namespace Plugins {
       return UC.GetLED(ledNumber);
     }
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetXposCallBack();
+    public GetXposCallBack pGetXpos; // Ensure it doesn't get garbage collected
+    private double GetXposHandler() {
+      return UC.GetXpos();
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetYposCallBack();
+    public GetYposCallBack pGetYpos; // Ensure it doesn't get garbage collected
+    private double GetYposHandler() {
+      return UC.GetYpos();
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetZposCallBack();
+    public GetZposCallBack pGetZpos; // Ensure it doesn't get garbage collected
+    private double GetZposHandler() {
+      return UC.GetZpos();
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetAposCallBack();
+    public GetAposCallBack pGetApos; // Ensure it doesn't get garbage collected
+    private double GetAposHandler() {
+      return UC.GetApos();
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetBposCallBack();
+    public GetBposCallBack pGetBpos; // Ensure it doesn't get garbage collected
+    private double GetBposHandler() {
+      return UC.GetBpos();
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate double GetCposCallBack();
+    public GetCposCallBack pGetCpos; // Ensure it doesn't get garbage collected
+    private double GetCposHandler() {
+      return UC.GetCpos();
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     public struct PluginInterfaceEntry {
       [MarshalAs(UnmanagedType.FunctionPtr)]
@@ -80,10 +122,28 @@ namespace Plugins {
 
       [MarshalAs(UnmanagedType.FunctionPtr)]
       public IsMovingCallBack pIsMoving;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetXposCallBack pGetXpos;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetYposCallBack pGetYpos;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetZposCallBack pGetZpos;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetAposCallBack pGetApos;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetBposCallBack pGetBpos;
+
+      [MarshalAs(UnmanagedType.FunctionPtr)]
+      public GetCposCallBack pGetCpos;
     }
 
-    [DllImport("msgflo.dll", CallingConvention = CallingConvention.Cdecl)]
-    public static unsafe extern void setCallBacks(PluginInterfaceEntry pInterface);
+    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void setCallBacks(PluginInterfaceEntry pInterface);
 
     public Plugininterface.Entry UC;
     PluginForm myform;
@@ -93,17 +153,29 @@ namespace Plugins {
 
     public unsafe UCCNCplugin() {
       // Use instance variables to ensure the pointers doesn't get garbage collected:
-      pGetField = new GetFieldCallBack(GetFieldHandler);
+      pGetField       = new GetFieldCallBack(GetFieldHandler);
       pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
-      pGetLed = new GetLedCallBack(GetLedHandler);
-      pIsMoving = new IsMovingCallBack(IsMovingHandler);
+      pGetLed         = new GetLedCallBack(GetLedHandler);
+      pIsMoving       = new IsMovingCallBack(IsMovingHandler);
+      pGetXpos        = new GetXposCallBack(GetXposHandler);
+      pGetYpos        = new GetYposCallBack(GetYposHandler);
+      pGetZpos        = new GetZposCallBack(GetZposHandler);
+      pGetApos        = new GetAposCallBack(GetAposHandler);
+      pGetBpos        = new GetBposCallBack(GetBposHandler);
+      pGetCpos        = new GetCposCallBack(GetCposHandler);
       // --
 
       PluginInterfaceEntry uc = new PluginInterfaceEntry();
-      uc.pGetField = pGetField;
+      uc.pGetField       = pGetField;
       uc.pGetFieldDouble = pGetFieldDouble;
-      uc.pGetLed = pGetLed;
-      uc.pIsMoving = pIsMoving;
+      uc.pGetLed         = pGetLed;
+      uc.pIsMoving       = pIsMoving;
+      uc.pGetXpos        = pGetXpos;
+      uc.pGetYpos        = pGetYpos;
+      uc.pGetZpos        = pGetZpos;
+      uc.pGetApos        = pGetApos;
+      uc.pGetBpos        = pGetBpos;
+      uc.pGetCpos        = pGetCpos;
 
       setCallBacks(uc);
     }
