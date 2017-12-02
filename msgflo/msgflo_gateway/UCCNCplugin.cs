@@ -45,7 +45,7 @@ namespace Plugins {
       string result = UC.Getfield(isAS3, fieldnumber);
 
       // TOOD: how to do the string copy right!?
-      int len = result.Length < resultBufLen + 1 ? result.Length : resultBufLen - 1;
+      int len = result.Length < resultBufLen - 1 ? result.Length : resultBufLen - 1;
 
       for (int i = 0; i < len; i++)
         pResult[i] = (byte)result[i];
