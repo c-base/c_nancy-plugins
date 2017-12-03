@@ -134,10 +134,16 @@ void MsgFlo::handleDiscovery(long timeMs) {
   worktimePort["type"] = "String";
   worktimePort["queue"] = baseTopic_ + "worktime";
 
+  json gcodePort;
+  gcodePort["id"] = "gcode";
+  gcodePort["type"] = "String";
+  gcodePort["queue"] = baseTopic_ + "gcode";
+
   outports.push_back(onlinePort);
   outports.push_back(millingPort);
   outports.push_back(positionPort);
   outports.push_back(worktimePort);
+  outports.push_back(gcodePort);
 
   payload["outports"] = outports;
 
