@@ -43,6 +43,12 @@ Paho::Paho(const string& pahoDllPath) {
 bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
   trace();
 
+  MQTTClient_willOptions will = MQTTClient_willOptions_initializer;
+  will.topicName = "werkstatt/c_nancy/online"; // TODO: add param to connect function instead of hard coding
+  will.message = "false";
+  will.retained = true;
+  will.qos = 1;
+
   MQTTClient_connectOptions opts;
   opts.struct_id[0] = 'M';
   opts.struct_id[1] = 'Q';
@@ -52,7 +58,7 @@ bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
   opts.keepAliveInterval = 60;
   opts.cleansession = 1;
   opts.reliable = 1;
-  opts.will = nullptr;
+  opts.will = &will;
   opts.username = nullptr;
   opts.password = nullptr;
   opts.connectTimeout = 30;
@@ -73,17 +79,17 @@ bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
   if (int error = pClientCreateFunc_(&hMqttClient_, pBrokerHostName, pClientId, 1, nullptr))
     return false;
 
-  auto connLost = [](void* context, char* cause) -> void {
+  auto connLost = [](void* pContext, char* pCause) -> void {
     dbg("Lost connection to MQTT!\n");
   };
 
-  auto msgArrived = [](void* context, char* topicName, int topicLen, MQTTClient_message* message) -> int {
+  auto msgArrived = [](void* pContext, char* pTopicName, int topicLen, MQTTClient_message* pMessage) -> int {
     dbg("Message arrived on MQTT!\n");
 
     return 0;
   };
 
-  auto msgDeliveryComplete = [](void* context, MQTTClient_deliveryToken dt) -> void {
+  auto msgDeliveryComplete = [](void* pContext, MQTTClient_deliveryToken dt) -> void {
     dbg("Message delivery complete on MQTT!\n");
   };
 
