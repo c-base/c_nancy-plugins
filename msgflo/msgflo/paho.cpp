@@ -12,6 +12,7 @@ Paho::Paho(const string& pahoDllPath) {
   else
     printf("Failed loading %s\n", pahoDllPath.c_str());
 
+  pSetCallBacksFunc_      = reinterpret_cast<MqttClientSetCallBacks_t*>(GetProcAddress(hDll_,   "MQTTClient_setCallbacks"));
   pGetVersionInfoFunc_    = reinterpret_cast<MqttClientGetVersionInfo_t*>(GetProcAddress(hDll_, "MQTTClient_getVersionInfo"));
   pClientCreateFunc_      = reinterpret_cast<MqttClientCreate_t*>(GetProcAddress(hDll_,         "MQTTClient_create"));
   pClientConnectFunc_     = reinterpret_cast<MqttClientConnect_t*>(GetProcAddress(hDll_,        "MQTTClient_connect"));
@@ -25,6 +26,7 @@ Paho::Paho(const string& pahoDllPath) {
     printf("%s: 0x%p\n", pFuncName, pFunc);
   };
 
+  printFuncAddr("MQTTClient_setCallBacks", pSetCallBacksFunc_);
   printFuncAddr("MQTTClient_getVersionInfo", pGetVersionInfoFunc_);
   printFuncAddr("MQTTClient_create", pClientCreateFunc_);
   printFuncAddr("MQTTClient_connect", pClientConnectFunc_);
@@ -70,6 +72,25 @@ bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
 
   if (int error = pClientCreateFunc_(&hMqttClient_, pBrokerHostName, pClientId, 1, nullptr))
     return false;
+
+  auto connLost = [](void* context, char* cause) -> void {
+    dbg("Lost connection to MQTT!\n");
+  };
+
+  auto msgArrived = [](void* context, char* topicName, int topicLen, MQTTClient_message* message) -> int {
+    dbg("Message arrived on MQTT!\n");
+
+    return 0;
+  };
+
+  auto msgDeliveryComplete = [](void* context, MQTTClient_deliveryToken dt) -> void {
+    dbg("Message delivery complete on MQTT!\n");
+  };
+
+  if (int error = pSetCallBacksFunc_(hMqttClient_, nullptr, connLost, msgArrived, msgDeliveryComplete))
+    dbg("Failed setting callbacks: %d\n", error);
+  else
+    dbg("Callbacks set\n");
 
   if (int error = pClientConnectFunc_(hMqttClient_, &opts))
     return false;

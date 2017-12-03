@@ -81,11 +81,10 @@ void MsgFlo::onFirstCycle() {
 void MsgFlo::onTick() {
   long timeMs = clock();
 
-  handleMillingState(timeMs);
-
   if (!mqttIsConnected())
     return;
 
+  handleMillingState(timeMs);
   handleDiscovery(timeMs);
   handlePositionState(timeMs);
   handleWorkTime(timeMs);
