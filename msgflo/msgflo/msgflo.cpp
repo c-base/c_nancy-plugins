@@ -52,7 +52,8 @@ bool MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const 
     MsgRetain retain) {
   string jsonStr = jsonObj.dump();
 
-  return pPaho_->publish(baseTopic + subTopic, jsonStr.c_str(), jsonStr.length(), 1, retain == MsgRetain::Retain);
+  return pPaho_->publish(baseTopic + subTopic, jsonStr.c_str(), jsonStr.length(), 1,
+      retain == MsgRetain::Retain);
 }
 
 bool MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
@@ -153,7 +154,7 @@ bool MsgFlo::isMilling() {
 }
 
 void MsgFlo::handleMillingState(long timeMs) {
-  static int _lastLine = 0;
+  static int _lastLine = -1;
   static ifstream _gCodeFile;
 
   bool m = isMilling();
@@ -190,16 +191,20 @@ void MsgFlo::handleMillingState(long timeMs) {
     if (currentLine < _lastLine)
       _lastLine = 0;
 
+    int diff = currentLine - _lastLine;
+
     // Skip lines if needed:
-    for(int i = 0; i < currentLine - _lastLine; i++)
+    for (int i = 1; i < diff; i++)
       getline(_gCodeFile, line);
 
+    getline(_gCodeFile, line);
     dbg("Line: %d: %s\n", currentLine, line.c_str());
+
+    json j = line;
+    mqttPublish("gcode", j);
 
     _lastLine = currentLine;
   }
-
-  // TODO: publish gcode
 }
 
 void MsgFlo::handlePositionState(long timeMs) {
