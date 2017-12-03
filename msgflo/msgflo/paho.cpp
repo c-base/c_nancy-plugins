@@ -40,12 +40,13 @@ Paho::Paho(const string& pahoDllPath) {
   printf("MQTT Versoin info: Name: '%s', '%s'\n", pName->name, pName->value);
 }
 
-bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
+bool Paho::connect(const string& brokerHostName, const string& clientId, const string& lastWillTopic,
+    const void* pLastWillMsg, int msgLen) {
   trace();
 
   MQTTClient_willOptions will = MQTTClient_willOptions_initializer;
-  will.topicName = "werkstatt/c_nancy/online"; // TODO: add param to connect function instead of hard coding
-  will.message = "false";
+  will.payload.data = pLastWillMsg;
+  will.payload.len = msgLen;
   will.retained = true;
   will.qos = 1;
 
@@ -53,7 +54,7 @@ bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
   opts.keepAliveInterval = 20;
   opts.cleansession = 1;
 
-  if (int error = pClientCreateFunc_(&hMqttClient_, pBrokerHostName, pClientId, 1, nullptr))
+  if (int error = pClientCreateFunc_(&hMqttClient_, brokerHostName.c_str(), clientId.c_str(), 1, nullptr))
     return false;
 
   auto connLost = [](void* pContext, char* pCause) -> void {
@@ -79,6 +80,12 @@ bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
     return false;
 
   return true;
+}
+
+bool Paho::connect(const string& brokerHostName, const string& clientId) {
+  trace();
+
+  return connect(brokerHostName, clientId, "", nullptr, 0);
 }
 
 bool Paho::disconnect() {

@@ -13,7 +13,10 @@ public:
   Paho(const string& pahoDllPath);
   ~Paho();
 
-  bool connect(const char* pBrokerHostName, const char* pClientId);
+  bool connect(const string& brokerHostName, const string& clientId);
+  bool connect(const string& brokerHostName, const string& clientId, const string& lastWillTopic,
+    const void* pLastWillMsg, int msgLen);
+
   bool disconnect();
   bool isConnected();
   bool publish(const string& topic, const void* pPayload, int len, int qos, bool retain);
