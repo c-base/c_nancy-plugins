@@ -49,30 +49,7 @@ bool Paho::connect(const char* pBrokerHostName, const char* pClientId) {
   will.retained = true;
   will.qos = 1;
 
-  MQTTClient_connectOptions opts;
-  opts.struct_id[0] = 'M';
-  opts.struct_id[1] = 'Q';
-  opts.struct_id[2] = 'T';
-  opts.struct_id[3] = 'C';
-  opts.struct_version = 5;
-  opts.keepAliveInterval = 60;
-  opts.cleansession = 1;
-  opts.reliable = 1;
-  opts.will = &will;
-  opts.username = nullptr;
-  opts.password = nullptr;
-  opts.connectTimeout = 30;
-  opts.retryInterval = 20;
-  opts.ssl = nullptr;
-  opts.serverURIcount = 0;
-  opts.serverURIs = nullptr;
-  opts.MQTTVersion = 0;
-  opts.returned.serverURI = nullptr;
-  opts.returned.MQTTVersion = 0;
-  opts.returned.sessionPresent = 0;
-  opts.binarypwd.len = 0;
-  opts.binarypwd.data = nullptr;
-
+  MQTTClient_connectOptions opts = MQTTClient_connectOptions_initializer;
   opts.keepAliveInterval = 20;
   opts.cleansession = 1;
 
@@ -122,18 +99,11 @@ bool Paho::isConnected() {
 bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, bool retain) {
   // trace();
 
-  MQTTClient_message msg;
-  msg.struct_id[0] = 'M';
-  msg.struct_id[1] = 'Q';
-  msg.struct_id[2] = 'T';
-  msg.struct_id[3] = 'M';
-  msg.struct_version = 0;
+  MQTTClient_message msg = MQTTClient_message_initializer;
   msg.payloadlen = len;
   msg.payload = const_cast<void*>(pPayload);
   msg.qos = qos;
   msg.retained = retain;
-  msg.dup = 0;
-  msg.msgid = 0;
 
   MQTTClient_deliveryToken dt;
   if (int error = pClientPublishMessage_(hMqttClient_, topic.c_str(), &msg, &dt))
