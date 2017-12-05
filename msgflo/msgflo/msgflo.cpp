@@ -5,7 +5,7 @@
 #include "msgflo.h"
 
 MsgFlo::MsgFlo() {
-  if constexpr (_DEBUG)
+  if constexpr (isDebug())
     attachDebugConsole();
 
   trace();
@@ -31,7 +31,7 @@ MsgFlo::~MsgFlo() {
   if(pPaho_)
     delete pPaho_;
 
-  if constexpr (_DEBUG)
+  if constexpr (isDebug())
     detachDebugConsole();
 }
 
