@@ -5,12 +5,12 @@
 #include "msgflo.h"
 
 MsgFlo::MsgFlo() {
-#ifdef _DEBUG
-  attachDebugConsole();
-#endif
+  if constexpr (_DEBUG)
+    attachDebugConsole();
+
   trace();
 
-  string dllName = "paho-mqtt3c.dll";
+  const string dllName = "paho-mqtt3c.dll";
   char pExePath[256];
 
   GetModuleFileName(NULL, pExePath, sizeof(pExePath));
@@ -31,9 +31,8 @@ MsgFlo::~MsgFlo() {
   if(pPaho_)
     delete pPaho_;
 
-#ifdef _DEBUG
-  detachDebugConsole();
-#endif
+  if constexpr (_DEBUG)
+    detachDebugConsole();
 }
 
 bool MsgFlo::mqttConnect() {
@@ -83,6 +82,8 @@ void MsgFlo::onFirstCycle() {
 }
 
 void MsgFlo::onTick() {
+  // trace();
+
   long timeMs = clock();
 
   if (!mqttIsConnected())
@@ -294,9 +295,9 @@ void MsgFlo::textFieldTextTypedEvent(UccncField label, bool isMainScreen, const 
   trace();
 
   if (isMainScreen) {
-    // if (labelNumber == 1000) {
-    //   // TODO: implement
-    // }
+    if (label == UccncField::Mdi) {
+      // TODO: implement
+    }
   }
 }
 
