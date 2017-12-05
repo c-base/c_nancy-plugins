@@ -4,32 +4,96 @@ using System.Text;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace Plugins {
   public class UCCNCplugin { // Class name must be UCCNCplugin to work!
-    public const string cppDll = "cpp\\msgflo.dll";
+    public const string dllName = "msgflo.dll"; // TODO: retrive dll name from gateway dll name!
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool onFirstCycle();
+    class CppDll {
+      static class Kernel32 {
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr LoadLibrary(string dllToLoad);
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool onTick();
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool onShutdown();
+        [DllImport("kernel32.dll")]
+        public static extern bool FreeLibrary(IntPtr hModule);
+      }
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void buttonpress_event(int buttonnumber, bool onscreen);
+      public CppDll(String dllPath) {
+        pDll = Kernel32.LoadLibrary(dllPath);
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void textfieldclick_event(int labelnumber, bool Ismainscreen);
+        if (pDll == IntPtr.Zero) {
+          MessageBox.Show(String.Format("Failed to load {0}!", dllPath) , "Error on loading cpp dll");
+          return;
+        }
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void textfieldtexttyped_event(int labelnumber, bool Ismainscreen, StringBuilder text);
+        onFirstCycle = (OnFirstCycle_t)Marshal.GetDelegateForFunctionPointer(
+          Kernel32.GetProcAddress(pDll, "onFirstCycle"), typeof(OnFirstCycle_t));
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void getproperties_event(StringBuilder author, StringBuilder pluginName,
-        StringBuilder pluginVersion);
+        onTick = (OnTick_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "onTick"), typeof(OnTick_t));
+
+        onShutdown = (OnShutdown_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "onShutdown"), typeof(OnShutdown_t));
+
+        buttonpress_event = (Buttonpress_event_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "buttonpress_event"), typeof(Buttonpress_event_t));
+
+        textfieldclick_event = (Textfieldclick_event_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "textfieldclick_event"), typeof(Textfieldclick_event_t));
+
+        textfieldtexttyped_event = (Textfieldtexttyped_event_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "textfieldtexttyped_event"), typeof(Textfieldtexttyped_event_t));
+
+        getproperties_event = (Getproperties_event_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "getproperties_event"), typeof(Getproperties_event_t));
+
+        setCallBacks = (SetCallBacks_t)Marshal.GetDelegateForFunctionPointer(
+            Kernel32.GetProcAddress(pDll, "setCallBacks"), typeof(SetCallBacks_t));
+      }
+
+      ~CppDll() {
+        Kernel32.FreeLibrary(pDll);
+      }
+
+      public IntPtr pDll;
+      public OnFirstCycle_t onFirstCycle;
+      public OnTick_t onTick;
+      public OnShutdown_t onShutdown;
+      public Buttonpress_event_t buttonpress_event;
+      public Textfieldclick_event_t textfieldclick_event;
+      public Textfieldtexttyped_event_t textfieldtexttyped_event;
+      public Getproperties_event_t getproperties_event;
+      public SetCallBacks_t setCallBacks;
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate bool OnFirstCycle_t();
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate bool OnTick_t();
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate bool OnShutdown_t();
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate void Buttonpress_event_t(int buttonnumber, bool onscreen);
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate void Textfieldclick_event_t(int labelnumber, bool Ismainscreen);
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate void Textfieldtexttyped_event_t(int labelnumber, bool Ismainscreen, StringBuilder text);
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate void Getproperties_event_t(StringBuilder author, StringBuilder pluginName,
+          StringBuilder pluginVersion);
+
+      [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+      public delegate void SetCallBacks_t(PluginInterfaceEntry pInterface);
+    }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool IsMovingCallBack();
@@ -152,16 +216,19 @@ namespace Plugins {
       public GetCposCallBack pGetCpos;
     }
 
-    [DllImport(cppDll, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void setCallBacks(PluginInterfaceEntry pInterface);
-
     public Plugininterface.Entry UC;
     PluginForm myform;
     bool isFirstCycle = true;
     public bool loopstop = false;
     public bool loopworking = false;
+    private CppDll cppDll;
 
     public unsafe UCCNCplugin() {
+      string exePath = Assembly.GetEntryAssembly().Location;
+      string absoluteDllPath = exePath.Substring(0, exePath.LastIndexOf('\\')) + @"\Plugins\cpp\" + dllName;
+
+      cppDll = new CppDll(absoluteDllPath);
+
       // Use instance variables to ensure the pointers doesn't get garbage collected:
       pGetField       = new GetFieldCallBack(GetFieldHandler);
       pGetFieldInt    = new GetFieldIntCallBack(GetFieldIntHandler);
@@ -189,7 +256,7 @@ namespace Plugins {
       uc.pGetBpos        = pGetBpos;
       uc.pGetCpos        = pGetCpos;
 
-      setCallBacks(uc);
+      cppDll.setCallBacks(uc);
     }
 
     // Called when the plugin is initialised.
@@ -205,7 +272,7 @@ namespace Plugins {
       StringBuilder pluginName = new StringBuilder(256);
       StringBuilder pluginVersion = new StringBuilder(256);
 
-      getproperties_event(author, pluginName, pluginVersion);
+      cppDll.getproperties_event(author, pluginName, pluginVersion);
 
       Properties.author = author.ToString();
       Properties.pluginname = pluginName.ToString();;
@@ -241,7 +308,7 @@ namespace Plugins {
     public void Shutdown_event() {
       try {
         loopstop = true;
-        onShutdown();
+        cppDll.onShutdown();
         myform.Close();
       }
       catch (Exception) {
@@ -261,11 +328,12 @@ namespace Plugins {
 
       if (isFirstCycle) {
         isFirstCycle = false;
-        onFirstCycle();
+
+        cppDll.onFirstCycle();
       }
 
       try {
-        onTick();
+        cppDll.onTick();
       }
       catch (Exception e) {
         MessageBox.Show(String.Format("Exception in msg-flow pluging!\n {0}", e.StackTrace), "Error in Loop_event");
@@ -303,14 +371,14 @@ namespace Plugins {
     //The int buttonnumber parameter is the ID of the caller button.
     // The bool onscreen parameter is true if the button was pressed on the GUI and is false if the Callbutton function was called.
     public void Buttonpress_event(int buttonnumber, bool onscreen) {
-      buttonpress_event(buttonnumber, onscreen);
+      cppDll.buttonpress_event(buttonnumber, onscreen);
     }
 
     //Called when the user clicks and enters a Textfield on the screen
     //The labelnumber parameter is the ID of the accessed Textfield
     //The bool Ismainscreen parameter is true is the Textfield is on the main screen and false if it is on the jog screen
     public void Textfieldclick_event(int labelnumber, bool Ismainscreen) {
-      textfieldclick_event(labelnumber, Ismainscreen);
+      cppDll.textfieldclick_event(labelnumber, Ismainscreen);
     }
 
     //Called when the user enters text into the Textfield and it gets validated
@@ -319,7 +387,7 @@ namespace Plugins {
     //The text parameter is the text entered and validated by the user
     public void Textfieldtexttyped_event(int labelnumber, bool Ismainscreen, string text) {
       StringBuilder sbText = new StringBuilder(text);
-      textfieldtexttyped_event(labelnumber, Ismainscreen, sbText);
+      cppDll.textfieldtexttyped_event(labelnumber, Ismainscreen, sbText);
     }
   }
 }
