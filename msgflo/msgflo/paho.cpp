@@ -44,16 +44,6 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
     const void* pLastWillMsg, int msgLen) {
   trace();
 
-  MQTTClient_willOptions will = MQTTClient_willOptions_initializer;
-  will.payload.data = pLastWillMsg;
-  will.payload.len = msgLen;
-  will.retained = true;
-  will.qos = 1;
-
-  MQTTClient_connectOptions opts = MQTTClient_connectOptions_initializer;
-  opts.keepAliveInterval = 20;
-  opts.cleansession = 1;
-
   if (int error = pClientCreateFunc_(&hMqttClient_, brokerHostName.c_str(), clientId.c_str(), 1, nullptr))
     return false;
 
@@ -75,6 +65,17 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
     dbg("Failed setting callbacks: %d\n", error);
   else
     dbg("Callbacks set\n");
+
+  MQTTClient_willOptions will = MQTTClient_willOptions_initializer;
+  will.payload.data = pLastWillMsg;
+  will.payload.len = msgLen;
+  will.retained = true;
+  will.qos = 1;
+
+  MQTTClient_connectOptions opts = MQTTClient_connectOptions_initializer;
+  opts.keepAliveInterval = 20;
+  opts.cleansession = 1;
+  // opts.will = &will;
 
   if (int error = pClientConnectFunc_(hMqttClient_, &opts))
     return false;

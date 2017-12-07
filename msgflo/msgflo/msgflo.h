@@ -14,11 +14,11 @@ using json = nlohmann::json;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
 constexpr const char* PLUGIN_NAME     = "msgflo (c++)";
-constexpr const char* PLUGIN_VERSION  = "02.12.17";
+constexpr const char* PLUGIN_VERSION  = "07.12.17";
 
 constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
-constexpr const char* MQTT_BASE_TOPIC = "werkstatt/c_nancy/";
-constexpr const char* MQTT_CLIENT_ID = "c_nancy";
+constexpr const char* MQTT_BASE_TOPIC      = "werkstatt/c_nancy/";
+constexpr const char* MQTT_CLIENT_ID       = "c_nancy";
 
 extern "C" {
   bool   __cdecl uCisMoving();
@@ -34,30 +34,18 @@ extern "C" {
   double __cdecl uCgetCpos();
 }
 
-using GetFieldFunc        = decltype(uCgetField);
-using GetFieldIntFunc     = decltype(uCgetFieldInt);
-using GetFieldDoubleFunc  = decltype(uCgetFieldDouble);
-using GetLedFunc          = decltype(uCGetLed);
-using IsMovingFunc        = decltype(uCisMoving);
-using GetXpos             = decltype(uCgetXpos);
-using GetYpos             = decltype(uCgetYpos);
-using GetZpos             = decltype(uCgetZpos);
-using GetApos             = decltype(uCgetApos);
-using GetBpos             = decltype(uCgetBpos);
-using GetCpos             = decltype(uCgetCpos);
-
 struct PluginInterfaceEntry {
-  GetFieldFunc*       pGetField;
-  GetFieldIntFunc*    pGetFieldInt;
-  GetFieldDoubleFunc* pGetFieldDouble;
-  GetLedFunc*         pGetLed;
-  IsMovingFunc*       pIsMoving;
-  GetXpos*            pCgetXpos;
-  GetYpos*            pCgetYpos;
-  GetZpos*            pCgetZpos;
-  GetApos*            pCgetApos;
-  GetBpos*            pCgetBpos;
-  GetCpos*            pCgetCpos;
+  decltype(uCgetField)*       pGetField;
+  decltype(uCgetFieldInt)*    pGetFieldInt;
+  decltype(uCgetFieldDouble)* pGetFieldDouble;
+  decltype(uCGetLed)*         pGetLed;
+  decltype(uCisMoving)*       pIsMoving;
+  decltype(uCgetXpos)*        pCgetXpos;
+  decltype(uCgetYpos)*        pCgetYpos;
+  decltype(uCgetZpos)*        pCgetZpos;
+  decltype(uCgetApos)*        pCgetApos;
+  decltype(uCgetBpos)*        pCgetBpos;
+  decltype(uCgetCpos)*        pCgetCpos;
 };
 
 enum class MsgRetain {

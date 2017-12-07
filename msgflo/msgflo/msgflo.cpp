@@ -82,7 +82,7 @@ void MsgFlo::onFirstCycle() {
 }
 
 void MsgFlo::onTick() {
-  // trace();
+  trace();
 
   long timeMs = clock();
 
