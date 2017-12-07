@@ -10,7 +10,7 @@ namespace Plugins {
   public class UCCNCplugin { // Class name must be UCCNCplugin to work!
     public const string dllName = "msgflo.dll"; // TODO: retrive dll name from gateway dll name!
 
-    class CppDll {
+    public class CppDll {
       static class Kernel32 {
         [DllImport("kernel32.dll")]
         public static extern IntPtr LoadLibrary(string dllToLoad);
@@ -23,11 +23,21 @@ namespace Plugins {
       }
 
       public CppDll(String dllPath) {
-        pDll = Kernel32.LoadLibrary(dllPath);
+        path = dllPath;
+        Load();
+      }
+
+      ~CppDll() {
+        Unload();
+      }
+
+      public bool Load() {
+        pDll = Kernel32.LoadLibrary(path);
 
         if (pDll == IntPtr.Zero) {
-          MessageBox.Show(String.Format("Failed to load {0}!", dllPath) , "Error on loading cpp dll");
-          return;
+          MessageBox.Show(String.Format("Failed to load {0}!", path), "Error on loading cpp dll");
+          isLoaded = false;
+          return isLoaded;
         }
 
         onFirstCycle = (OnFirstCycle_t)Marshal.GetDelegateForFunctionPointer(
@@ -53,13 +63,25 @@ namespace Plugins {
 
         setCallBacks = (SetCallBacks_t)Marshal.GetDelegateForFunctionPointer(
             Kernel32.GetProcAddress(pDll, "setCallBacks"), typeof(SetCallBacks_t));
+
+        isLoaded = true;
+        return isLoaded;
       }
 
-      ~CppDll() {
+      public bool Unload() {
+        isLoaded = false;
         Kernel32.FreeLibrary(pDll);
+
+        return isLoaded;
       }
 
-      public IntPtr pDll;
+      public bool IsLoaded() {
+        return isLoaded;
+      }
+
+      private bool isLoaded;
+      private string path;
+      private IntPtr pDll;
       public OnFirstCycle_t onFirstCycle;
       public OnTick_t onTick;
       public OnShutdown_t onShutdown;
@@ -218,10 +240,11 @@ namespace Plugins {
 
     public Plugininterface.Entry UC;
     PluginForm myform;
-    bool isFirstCycle = true;
+    public bool isFirstCycle = true;
     public bool loopstop = false;
     public bool loopworking = false;
-    private CppDll cppDll;
+    public bool dllIsLoaded = false;
+    public CppDll cppDll;
 
     public unsafe UCCNCplugin() {
       string exePath = Assembly.GetEntryAssembly().Location;
@@ -256,7 +279,8 @@ namespace Plugins {
       uc.pGetBpos        = pGetBpos;
       uc.pGetCpos        = pGetCpos;
 
-      cppDll.setCallBacks(uc);
+      if (cppDll.IsLoaded())
+        cppDll.setCallBacks(uc);
     }
 
     // Called when the plugin is initialised.
@@ -272,7 +296,8 @@ namespace Plugins {
       StringBuilder pluginName = new StringBuilder(256);
       StringBuilder pluginVersion = new StringBuilder(256);
 
-      cppDll.getproperties_event(author, pluginName, pluginVersion);
+      if (cppDll.IsLoaded())
+        cppDll.getproperties_event(author, pluginName, pluginVersion);
 
       Properties.author = author.ToString();
       Properties.pluginname = pluginName.ToString();;
@@ -308,7 +333,10 @@ namespace Plugins {
     public void Shutdown_event() {
       try {
         loopstop = true;
-        cppDll.onShutdown();
+
+        if(cppDll.IsLoaded())
+          cppDll.onShutdown();
+
         myform.Close();
       }
       catch (Exception) {
@@ -321,6 +349,9 @@ namespace Plugins {
       if (loopstop)
         return;
 
+      if (!cppDll.IsLoaded())
+        return;
+
       loopworking = true;
 
       if (myform == null || myform.IsDisposed)
@@ -329,11 +360,13 @@ namespace Plugins {
       if (isFirstCycle) {
         isFirstCycle = false;
 
-        cppDll.onFirstCycle();
+        if (cppDll.IsLoaded())
+          cppDll.onFirstCycle();
       }
 
       try {
-        cppDll.onTick();
+        if (cppDll.IsLoaded())
+          cppDll.onTick();
       }
       catch (Exception e) {
         MessageBox.Show(String.Format("Exception in msg-flow pluging!\n {0}", e.StackTrace), "Error in Loop_event");
@@ -371,14 +404,16 @@ namespace Plugins {
     //The int buttonnumber parameter is the ID of the caller button.
     // The bool onscreen parameter is true if the button was pressed on the GUI and is false if the Callbutton function was called.
     public void Buttonpress_event(int buttonnumber, bool onscreen) {
-      cppDll.buttonpress_event(buttonnumber, onscreen);
+      if (cppDll.IsLoaded())
+        cppDll.buttonpress_event(buttonnumber, onscreen);
     }
 
     //Called when the user clicks and enters a Textfield on the screen
     //The labelnumber parameter is the ID of the accessed Textfield
     //The bool Ismainscreen parameter is true is the Textfield is on the main screen and false if it is on the jog screen
     public void Textfieldclick_event(int labelnumber, bool Ismainscreen) {
-      cppDll.textfieldclick_event(labelnumber, Ismainscreen);
+      if (cppDll.IsLoaded())
+        cppDll.textfieldclick_event(labelnumber, Ismainscreen);
     }
 
     //Called when the user enters text into the Textfield and it gets validated
@@ -387,7 +422,8 @@ namespace Plugins {
     //The text parameter is the text entered and validated by the user
     public void Textfieldtexttyped_event(int labelnumber, bool Ismainscreen, string text) {
       StringBuilder sbText = new StringBuilder(text);
-      cppDll.textfieldtexttyped_event(labelnumber, Ismainscreen, sbText);
+      if (cppDll.IsLoaded())
+        cppDll.textfieldtexttyped_event(labelnumber, Ismainscreen, sbText);
     }
   }
 }

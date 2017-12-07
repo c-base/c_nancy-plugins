@@ -6,23 +6,15 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Plugins
-{
-    public partial class ConfigForm : Form
-    {
-        public ConfigForm()
-        {
-            InitializeComponent();
-        }
+namespace Plugins {
+  public partial class ConfigForm : Form {
+    public ConfigForm() {
+      InitializeComponent();
 
-        private void ConfigForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
+
+    private void ConfigForm_Load(object sender, EventArgs e) {
+
+    }
+  }
 }
