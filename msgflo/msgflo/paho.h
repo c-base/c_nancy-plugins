@@ -22,15 +22,16 @@ public:
   bool publish(const string& topic, const void* pPayload, int len, int qos, bool retain);
 
 private:
-  using MqttClientSetCallBacks_t    = decltype(MQTTClient_setCallbacks);
-  using MqttClientGetVersionInfo_t  = decltype(MQTTClient_getVersionInfo);
-  using MqttClientCreate_t          = decltype(MQTTClient_create);
-  using MqttClientConnect_t         = decltype(MQTTClient_connect);
-  using MqttClientDisconnect_t      = decltype(MQTTClient_disconnect);
-  using MqttClientIsConnected_t     = decltype(MQTTClient_isConnected);
-  using MqttClientPublish_t         = decltype(MQTTClient_publish);
-  using MqttClientDestroy_t         = decltype(MQTTClient_destroy);
-  using MqttClientPublishMessage_t  = decltype(MQTTClient_publishMessage);
+  using MqttClientSetCallBacks_t      = decltype(MQTTClient_setCallbacks);
+  using MqttClientGetVersionInfo_t    = decltype(MQTTClient_getVersionInfo);
+  using MqttClientCreate_t            = decltype(MQTTClient_create);
+  using MqttClientConnect_t           = decltype(MQTTClient_connect);
+  using MqttClientDisconnect_t        = decltype(MQTTClient_disconnect);
+  using MqttClientIsConnected_t       = decltype(MQTTClient_isConnected);
+  using MqttClientPublish_t           = decltype(MQTTClient_publish);
+  using MqttClientDestroy_t           = decltype(MQTTClient_destroy);
+  using MqttClientPublishMessage_t    = decltype(MQTTClient_publishMessage);
+  using MqttClientWaitForCompletion_t = decltype(MQTTClient_waitForCompletion);
 
   MqttClientSetCallBacks_t* pSetCallBacksFunc_{ nullptr };
   MqttClientGetVersionInfo_t* pGetVersionInfoFunc_{ nullptr };
@@ -41,6 +42,7 @@ private:
   MqttClientPublish_t* pClientPublish_{ nullptr };
   MqttClientDestroy_t* pClientDestroy_{ nullptr };
   MqttClientPublishMessage_t* pClientPublishMessage_{ nullptr };
+  MqttClientWaitForCompletion_t* pClientWaitForCompletion_{ nullptr };
 
   HMODULE hDll_{ NULL };
   MQTTClient hMqttClient_{ NULL };

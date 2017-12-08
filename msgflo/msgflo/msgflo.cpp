@@ -28,6 +28,10 @@ MsgFlo::MsgFlo() {
 MsgFlo::~MsgFlo() {
   trace();
 
+  if (pPaho_->isConnected()) {
+    msgFloOnline(false);
+  }
+
   if(pPaho_)
     delete pPaho_;
 
@@ -77,12 +81,11 @@ void MsgFlo::onFirstCycle() {
   else
     dbg("Connection to MQTT broker '%s' established\n", MQTT_BROKER_HOSTNAME);
 
-  json j = true;
-  mqttPublish("online", j, MsgRetain::Retain);
+  msgFloOnline(true);
 }
 
 void MsgFlo::onTick() {
-  trace();
+  // trace();
 
   long timeMs = clock();
 
@@ -257,8 +260,7 @@ void MsgFlo::handleWorkTime(long timeMs) {
 void MsgFlo::onShutdown() {
   trace();
 
-  json j = false;
-  mqttPublish("online", j, MsgRetain::Retain);
+  msgFloOnline(false);
 }
 
 void MsgFlo::buttonPressEvent(UccncButton button, bool onScreen) {
@@ -307,4 +309,11 @@ void MsgFlo::getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginV
   strcpy_s(pAuthor, 256, AUTHOR);
   strcpy_s(pPluginName, 256, PLUGIN_NAME);
   strcpy_s(pPluginVersion, 256, PLUGIN_VERSION);
+}
+
+bool MsgFlo::msgFloOnline(bool isOnline) {
+  trace();
+
+  json j = isOnline;
+  return mqttPublish("online", j, MsgRetain::Retain);
 }

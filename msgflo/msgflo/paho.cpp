@@ -12,15 +12,16 @@ Paho::Paho(const string& pahoDllPath) {
   else
     printf("Failed loading %s\n", pahoDllPath.c_str());
 
-  pSetCallBacksFunc_      = reinterpret_cast<MqttClientSetCallBacks_t*>(GetProcAddress(hDll_,   "MQTTClient_setCallbacks"));
-  pGetVersionInfoFunc_    = reinterpret_cast<MqttClientGetVersionInfo_t*>(GetProcAddress(hDll_, "MQTTClient_getVersionInfo"));
-  pClientCreateFunc_      = reinterpret_cast<MqttClientCreate_t*>(GetProcAddress(hDll_,         "MQTTClient_create"));
-  pClientConnectFunc_     = reinterpret_cast<MqttClientConnect_t*>(GetProcAddress(hDll_,        "MQTTClient_connect"));
-  pClientDisconnectFunc_  = reinterpret_cast<MqttClientDisconnect_t*>(GetProcAddress(hDll_,     "MQTTClient_disconnect"));
-  pClientIsConnectedFunc_ = reinterpret_cast<MqttClientIsConnected_t*>(GetProcAddress(hDll_,    "MQTTClient_isConnected"));
-  pClientPublish_         = reinterpret_cast<MqttClientPublish_t*>(GetProcAddress(hDll_,        "MQTTClient_publish"));
-  pClientPublishMessage_  = reinterpret_cast<MqttClientPublishMessage_t*>(GetProcAddress(hDll_, "MQTTClient_publishMessage"));
-  pClientDestroy_         = reinterpret_cast<MqttClientDestroy_t*>(GetProcAddress(hDll_,        "MQTTClient_destroy"));
+  pSetCallBacksFunc_         = reinterpret_cast<MqttClientSetCallBacks_t*>(GetProcAddress(hDll_,      "MQTTClient_setCallbacks"));
+  pGetVersionInfoFunc_       = reinterpret_cast<MqttClientGetVersionInfo_t*>(GetProcAddress(hDll_,    "MQTTClient_getVersionInfo"));
+  pClientCreateFunc_         = reinterpret_cast<MqttClientCreate_t*>(GetProcAddress(hDll_,            "MQTTClient_create"));
+  pClientConnectFunc_        = reinterpret_cast<MqttClientConnect_t*>(GetProcAddress(hDll_,           "MQTTClient_connect"));
+  pClientDisconnectFunc_     = reinterpret_cast<MqttClientDisconnect_t*>(GetProcAddress(hDll_,        "MQTTClient_disconnect"));
+  pClientIsConnectedFunc_    = reinterpret_cast<MqttClientIsConnected_t*>(GetProcAddress(hDll_,       "MQTTClient_isConnected"));
+  pClientPublish_            = reinterpret_cast<MqttClientPublish_t*>(GetProcAddress(hDll_,           "MQTTClient_publish"));
+  pClientPublishMessage_     = reinterpret_cast<MqttClientPublishMessage_t*>(GetProcAddress(hDll_,    "MQTTClient_publishMessage"));
+  pClientDestroy_            = reinterpret_cast<MqttClientDestroy_t*>(GetProcAddress(hDll_,           "MQTTClient_destroy"));
+  pClientWaitForCompletion_  = reinterpret_cast<MqttClientWaitForCompletion_t*>(GetProcAddress(hDll_, "MQTTClient_waitForCompletion"));
 
   auto printFuncAddr = [](const char* pFuncName, const void* pFunc) {
     printf("%s: 0x%p\n", pFuncName, pFunc);
@@ -35,6 +36,7 @@ Paho::Paho(const string& pahoDllPath) {
   printFuncAddr("MQTTClient_publish", pClientPublish_);
   printFuncAddr("MQTTClient_publishMessage", pClientPublishMessage_);
   printFuncAddr("MQTTClient_destroy", pClientDestroy_);
+  printFuncAddr("MQTTClient_waitForCompletion", pClientWaitForCompletion_);
 
   MQTTClient_nameValue* pName = pGetVersionInfoFunc_();
   printf("MQTT Versoin info: Name: '%s', '%s'\n", pName->name, pName->value);
@@ -62,9 +64,9 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
   };
 
   if (int error = pSetCallBacksFunc_(hMqttClient_, nullptr, connLost, msgArrived, msgDeliveryComplete))
-    dbg("Failed setting callbacks: %d\n", error);
+    dbg("Paho::connect; Failed setting callbacks: %d\n", error);
   else
-    dbg("Callbacks set\n");
+    dbg("Paho::connect; Callbacks set\n");
 
   MQTTClient_willOptions will = MQTTClient_willOptions_initializer;
   will.payload.data = pLastWillMsg;
@@ -116,6 +118,9 @@ bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, 
   MQTTClient_deliveryToken dt;
   if (int error = pClientPublishMessage_(hMqttClient_, topic.c_str(), &msg, &dt))
     return false;
+
+  if (int error = pClientWaitForCompletion_(hMqttClient_, dt, 3000));
+  return false;
 
   return true;
 }
