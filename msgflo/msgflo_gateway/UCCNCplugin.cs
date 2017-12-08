@@ -24,7 +24,6 @@ namespace Plugins {
 
       public CppDll(String dllPath) {
         path = dllPath;
-        Load();
       }
 
       ~CppDll() {
@@ -32,12 +31,15 @@ namespace Plugins {
       }
 
       public bool Load() {
+        if (pDll != IntPtr.Zero)
+          return false;
+
         pDll = Kernel32.LoadLibrary(path);
 
         if (pDll == IntPtr.Zero) {
           MessageBox.Show(String.Format("Failed to load {0}!", path), "Error on loading cpp dll");
-          isLoaded = false;
-          return isLoaded;
+
+          return false;
         }
 
         onFirstCycle = (OnFirstCycle_t)Marshal.GetDelegateForFunctionPointer(
@@ -64,24 +66,23 @@ namespace Plugins {
         setCallBacks = (SetCallBacks_t)Marshal.GetDelegateForFunctionPointer(
             Kernel32.GetProcAddress(pDll, "setCallBacks"), typeof(SetCallBacks_t));
 
-        isLoaded = true;
-        return isLoaded;
+        return true;
       }
 
       public bool Unload() {
-        isLoaded = false;
-        Kernel32.FreeLibrary(pDll);
+        bool success = Kernel32.FreeLibrary(pDll);
+        pDll = IntPtr.Zero;
 
-        return isLoaded;
+        return success;
       }
 
       public bool IsLoaded() {
-        return isLoaded;
+        return pDll != IntPtr.Zero;
       }
 
-      private bool isLoaded;
       private string path;
-      private IntPtr pDll;
+      private IntPtr pDll = IntPtr.Zero;
+
       public OnFirstCycle_t onFirstCycle;
       public OnTick_t onTick;
       public OnShutdown_t onShutdown;
@@ -117,16 +118,35 @@ namespace Plugins {
       public delegate void SetCallBacks_t(PluginInterfaceEntry pInterface);
     }
 
+    // Do unloading of dll in a safe state to avoid unloading while code in dll is executed. Else this meight
+    // result in a crash:
+
+    enum DllDelayedOperation {
+      None,
+      Load,
+      Unload
+    };
+
+    DllDelayedOperation delayedDllOperation;
+
+    public void loadDll() {
+      delayedDllOperation = DllDelayedOperation.Load;
+    }
+
+    public void unloadDll() {
+      delayedDllOperation = DllDelayedOperation.Unload;
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool IsMovingCallBack();
-    public IsMovingCallBack pIsMoving; // Ensure it doesn't get garbage collected
+    public IsMovingCallBack pIsMoving;
     private unsafe bool IsMovingHandler() {
       return UC.IsMoving();
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public unsafe delegate void GetFieldCallBack(byte* pResult, int resultBufLen, bool isAS3, int fieldnumber);
-    public GetFieldCallBack pGetField; // Ensure it doesn't get garbage collected
+    public GetFieldCallBack pGetField;
     private unsafe void GetFieldHandler(byte* pResult, int resultBufLen, bool isAS3, int fieldnumber) {
       string result = UC.Getfield(isAS3, fieldnumber);
 
@@ -141,63 +161,63 @@ namespace Plugins {
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int GetFieldIntCallBack(bool isAS3, int fieldnumber);
-    public GetFieldIntCallBack pGetFieldInt; // Ensure it doesn't get garbage collected
+    public GetFieldIntCallBack pGetFieldInt;
     private int GetFieldIntHandler(bool isAS3, int fieldnumber) {
-        return UC.Getfieldint(isAS3, fieldnumber);
+      return UC.Getfieldint(isAS3, fieldnumber);
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetFieldDoubleCallBack(bool isAS3, int fieldnumber);
-    public GetFieldDoubleCallBack pGetFieldDouble; // Ensure it doesn't get garbage collected
+    public GetFieldDoubleCallBack pGetFieldDouble;
     private double GetFieldDoubleHandler(bool isAS3, int fieldnumber) {
       return UC.Getfielddouble(isAS3, fieldnumber);
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate bool GetLedCallBack(int ledNumber);
-    public GetLedCallBack pGetLed; // Ensure it doesn't get garbage collected
+    public GetLedCallBack pGetLed;
     private bool GetLedHandler(int ledNumber) {
       return UC.GetLED(ledNumber);
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetXposCallBack();
-    public GetXposCallBack pGetXpos; // Ensure it doesn't get garbage collected
+    public GetXposCallBack pGetXpos;
     private double GetXposHandler() {
       return UC.GetXpos();
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetYposCallBack();
-    public GetYposCallBack pGetYpos; // Ensure it doesn't get garbage collected
+    public GetYposCallBack pGetYpos;
     private double GetYposHandler() {
       return UC.GetYpos();
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetZposCallBack();
-    public GetZposCallBack pGetZpos; // Ensure it doesn't get garbage collected
+    public GetZposCallBack pGetZpos;
     private double GetZposHandler() {
       return UC.GetZpos();
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetAposCallBack();
-    public GetAposCallBack pGetApos; // Ensure it doesn't get garbage collected
+    public GetAposCallBack pGetApos;
     private double GetAposHandler() {
       return UC.GetApos();
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetBposCallBack();
-    public GetBposCallBack pGetBpos; // Ensure it doesn't get garbage collected
+    public GetBposCallBack pGetBpos;
     private double GetBposHandler() {
       return UC.GetBpos();
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate double GetCposCallBack();
-    public GetCposCallBack pGetCpos; // Ensure it doesn't get garbage collected
+    public GetCposCallBack pGetCpos;
     private double GetCposHandler() {
       return UC.GetCpos();
     }
@@ -251,36 +271,20 @@ namespace Plugins {
       string absoluteDllPath = exePath.Substring(0, exePath.LastIndexOf('\\')) + @"\Plugins\cpp\" + dllName;
 
       cppDll = new CppDll(absoluteDllPath);
+      delayedDllOperation = DllDelayedOperation.None;
 
-      // Use instance variables to ensure the pointers doesn't get garbage collected:
-      pGetField       = new GetFieldCallBack(GetFieldHandler);
-      pGetFieldInt    = new GetFieldIntCallBack(GetFieldIntHandler);
+      // Use instance variables to ensure the delegates don't get garbage collected:
+      pGetField = new GetFieldCallBack(GetFieldHandler);
+      pGetFieldInt = new GetFieldIntCallBack(GetFieldIntHandler);
       pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
-      pGetLed         = new GetLedCallBack(GetLedHandler);
-      pIsMoving       = new IsMovingCallBack(IsMovingHandler);
-      pGetXpos        = new GetXposCallBack(GetXposHandler);
-      pGetYpos        = new GetYposCallBack(GetYposHandler);
-      pGetZpos        = new GetZposCallBack(GetZposHandler);
-      pGetApos        = new GetAposCallBack(GetAposHandler);
-      pGetBpos        = new GetBposCallBack(GetBposHandler);
-      pGetCpos        = new GetCposCallBack(GetCposHandler);
-      // --
-
-      PluginInterfaceEntry uc = new PluginInterfaceEntry();
-      uc.pGetField       = pGetField;
-      uc.pGetFieldInt    = pGetFieldInt;
-      uc.pGetFieldDouble = pGetFieldDouble;
-      uc.pGetLed         = pGetLed;
-      uc.pIsMoving       = pIsMoving;
-      uc.pGetXpos        = pGetXpos;
-      uc.pGetYpos        = pGetYpos;
-      uc.pGetZpos        = pGetZpos;
-      uc.pGetApos        = pGetApos;
-      uc.pGetBpos        = pGetBpos;
-      uc.pGetCpos        = pGetCpos;
-
-      if (cppDll.IsLoaded())
-        cppDll.setCallBacks(uc);
+      pGetLed = new GetLedCallBack(GetLedHandler);
+      pIsMoving = new IsMovingCallBack(IsMovingHandler);
+      pGetXpos = new GetXposCallBack(GetXposHandler);
+      pGetYpos = new GetYposCallBack(GetYposHandler);
+      pGetZpos = new GetZposCallBack(GetZposHandler);
+      pGetApos = new GetAposCallBack(GetAposHandler);
+      pGetBpos = new GetBposCallBack(GetBposHandler);
+      pGetCpos = new GetCposCallBack(GetCposHandler);
     }
 
     // Called when the plugin is initialised.
@@ -296,11 +300,15 @@ namespace Plugins {
       StringBuilder pluginName = new StringBuilder(256);
       StringBuilder pluginVersion = new StringBuilder(256);
 
+      author.Append("---");
+      pluginName.Append("---");
+      pluginVersion.Append("---");
+
       if (cppDll.IsLoaded())
         cppDll.getproperties_event(author, pluginName, pluginVersion);
 
       Properties.author = author.ToString();
-      Properties.pluginname = pluginName.ToString();;
+      Properties.pluginname = pluginName.ToString(); ;
       Properties.pluginversion = pluginVersion.ToString();
       return Properties;
     }
@@ -334,7 +342,7 @@ namespace Plugins {
       try {
         loopstop = true;
 
-        if(cppDll.IsLoaded())
+        if (cppDll.IsLoaded())
           cppDll.onShutdown();
 
         myform.Close();
@@ -344,10 +352,45 @@ namespace Plugins {
       }
     }
 
+    public void processDelayedDllOperation() {
+      switch(delayedDllOperation) {
+        case DllDelayedOperation.Load:
+          if (!cppDll.Load())
+            MessageBox.Show("Loading cpp dll failed!");
+
+          PluginInterfaceEntry uc = new PluginInterfaceEntry();
+          uc.pGetField = pGetField;
+          uc.pGetFieldInt = pGetFieldInt;
+          uc.pGetFieldDouble = pGetFieldDouble;
+          uc.pGetLed = pGetLed;
+          uc.pIsMoving = pIsMoving;
+          uc.pGetXpos = pGetXpos;
+          uc.pGetYpos = pGetYpos;
+          uc.pGetZpos = pGetZpos;
+          uc.pGetApos = pGetApos;
+          uc.pGetBpos = pGetBpos;
+          uc.pGetCpos = pGetCpos;
+
+          cppDll.setCallBacks(uc);
+          isFirstCycle = true;
+          break;
+
+        case DllDelayedOperation.Unload:
+          if(!cppDll.Unload())
+            MessageBox.Show("Unloading cpp dll failed!");
+
+          break;
+      }
+
+      delayedDllOperation = DllDelayedOperation.None;
+    }
+
     // Called in a loop with a 25Hz interval.
     public void Loop_event()  {
       if (loopstop)
         return;
+
+      processDelayedDllOperation();
 
       if (!cppDll.IsLoaded())
         return;
@@ -360,13 +403,11 @@ namespace Plugins {
       if (isFirstCycle) {
         isFirstCycle = false;
 
-        if (cppDll.IsLoaded())
-          cppDll.onFirstCycle();
+        cppDll.onFirstCycle();
       }
 
       try {
-        if (cppDll.IsLoaded())
-          cppDll.onTick();
+        cppDll.onTick();
       }
       catch (Exception e) {
         MessageBox.Show(String.Format("Exception in msg-flow pluging!\n {0}", e.StackTrace), "Error in Loop_event");
@@ -404,7 +445,9 @@ namespace Plugins {
     //The int buttonnumber parameter is the ID of the caller button.
     // The bool onscreen parameter is true if the button was pressed on the GUI and is false if the Callbutton function was called.
     public void Buttonpress_event(int buttonnumber, bool onscreen) {
-      if (cppDll.IsLoaded())
+      // MessageBox.Show(String.Format("Button Number: {0}", buttonnumber));
+
+      if(cppDll.IsLoaded())
         cppDll.buttonpress_event(buttonnumber, onscreen);
     }
 
@@ -422,6 +465,7 @@ namespace Plugins {
     //The text parameter is the text entered and validated by the user
     public void Textfieldtexttyped_event(int labelnumber, bool Ismainscreen, string text) {
       StringBuilder sbText = new StringBuilder(text);
+
       if (cppDll.IsLoaded())
         cppDll.textfieldtexttyped_event(labelnumber, Ismainscreen, sbText);
     }

@@ -64,18 +64,20 @@ namespace Plugins {
     }
 
     private void button_load_Click(object sender, EventArgs e) {
-      // TODO: Do not load dll directly. Mark for load and do loading in onTick() instead.
+      Pluginmain.loadDll();
       Pluginmain.isFirstCycle = true;
-      Pluginmain.cppDll.Load();
-      setButtons();
+
+      // TODO: enable / disable button, when loading was successful:
+      button_load.Enabled = false;
+      button_unload.Enabled = true;
     }
 
     private void button_unload_Click(object sender, EventArgs e) {
-      // TODO: Do not unload dll directly. Mark for load and do unloading in onTick() instead.
-      //       Direct unloading may lead to a crash, when beeing inside the dll while unloading.
+      Pluginmain.unloadDll();
 
-      Pluginmain.cppDll.Unload();
-      setButtons();
+      // TODO: enable / disable button, when unloading was successful:
+      button_load.Enabled = true;
+      button_unload.Enabled = false;
     }
   }
 }
