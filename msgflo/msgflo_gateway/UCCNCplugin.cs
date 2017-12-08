@@ -129,11 +129,11 @@ namespace Plugins {
 
     DllDelayedOperation delayedDllOperation;
 
-    public void loadDll() {
+    public void loadDllAsync() {
       delayedDllOperation = DllDelayedOperation.Load;
     }
 
-    public void unloadDll() {
+    public void unloadDllAsync() {
       delayedDllOperation = DllDelayedOperation.Unload;
     }
 
@@ -258,6 +258,8 @@ namespace Plugins {
       public GetCposCallBack pGetCpos;
     }
 
+    // Use instance variable if PluginInterfaceEntry to ensure the delegates don't get garbage collected:
+    private PluginInterfaceEntry uc_callbacks;
     public Plugininterface.Entry UC;
     PluginForm myform;
     public bool isFirstCycle = true;
@@ -273,18 +275,22 @@ namespace Plugins {
       cppDll = new CppDll(absoluteDllPath);
       delayedDllOperation = DllDelayedOperation.None;
 
-      // Use instance variables to ensure the delegates don't get garbage collected:
-      pGetField = new GetFieldCallBack(GetFieldHandler);
-      pGetFieldInt = new GetFieldIntCallBack(GetFieldIntHandler);
-      pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
-      pGetLed = new GetLedCallBack(GetLedHandler);
-      pIsMoving = new IsMovingCallBack(IsMovingHandler);
-      pGetXpos = new GetXposCallBack(GetXposHandler);
-      pGetYpos = new GetYposCallBack(GetYposHandler);
-      pGetZpos = new GetZposCallBack(GetZposHandler);
-      pGetApos = new GetAposCallBack(GetAposHandler);
-      pGetBpos = new GetBposCallBack(GetBposHandler);
-      pGetCpos = new GetCposCallBack(GetCposHandler);
+      uc_callbacks = new PluginInterfaceEntry();
+      uc_callbacks.pGetField = new GetFieldCallBack(GetFieldHandler);
+      uc_callbacks.pGetFieldInt = new GetFieldIntCallBack(GetFieldIntHandler);
+      uc_callbacks.pGetFieldDouble = new GetFieldDoubleCallBack(GetFieldDoubleHandler);
+      uc_callbacks.pGetLed = new GetLedCallBack(GetLedHandler);
+      uc_callbacks.pIsMoving = new IsMovingCallBack(IsMovingHandler);
+      uc_callbacks.pGetXpos = new GetXposCallBack(GetXposHandler);
+      uc_callbacks.pGetYpos = new GetYposCallBack(GetYposHandler);
+      uc_callbacks.pGetZpos = new GetZposCallBack(GetZposHandler);
+      uc_callbacks.pGetApos = new GetAposCallBack(GetAposHandler);
+      uc_callbacks.pGetBpos = new GetBposCallBack(GetBposHandler);
+      uc_callbacks.pGetCpos = new GetCposCallBack(GetCposHandler);
+
+      // Do not load dll asynchronously at this point or Getproperties_event() call will never reach cpp dll:
+      cppDll.Load();
+      cppDll.setCallBacks(uc_callbacks);
     }
 
     // Called when the plugin is initialised.
@@ -358,20 +364,7 @@ namespace Plugins {
           if (!cppDll.Load())
             MessageBox.Show("Loading cpp dll failed!");
 
-          PluginInterfaceEntry uc = new PluginInterfaceEntry();
-          uc.pGetField = pGetField;
-          uc.pGetFieldInt = pGetFieldInt;
-          uc.pGetFieldDouble = pGetFieldDouble;
-          uc.pGetLed = pGetLed;
-          uc.pIsMoving = pIsMoving;
-          uc.pGetXpos = pGetXpos;
-          uc.pGetYpos = pGetYpos;
-          uc.pGetZpos = pGetZpos;
-          uc.pGetApos = pGetApos;
-          uc.pGetBpos = pGetBpos;
-          uc.pGetCpos = pGetCpos;
-
-          cppDll.setCallBacks(uc);
+          cppDll.setCallBacks(uc_callbacks);
           isFirstCycle = true;
           break;
 

@@ -64,7 +64,7 @@ namespace Plugins {
     }
 
     private void button_load_Click(object sender, EventArgs e) {
-      Pluginmain.loadDll();
+      Pluginmain.loadDllAsync();
       Pluginmain.isFirstCycle = true;
 
       // TODO: enable / disable button, when loading was successful:
@@ -73,7 +73,7 @@ namespace Plugins {
     }
 
     private void button_unload_Click(object sender, EventArgs e) {
-      Pluginmain.unloadDll();
+      Pluginmain.unloadDllAsync();
 
       // TODO: enable / disable button, when unloading was successful:
       button_load.Enabled = true;
