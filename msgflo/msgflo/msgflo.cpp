@@ -99,7 +99,6 @@ void MsgFlo::onTick() {
 }
 
 void MsgFlo::handleDiscovery(long timeMs) {
-  // TODO: only update every minute:
   static long lastTick = 0;
 
   if ((timeMs - lastTick < 60 * 1000) && lastTick != 0)
@@ -155,9 +154,10 @@ void MsgFlo::handleDiscovery(long timeMs) {
   j["id"] = "c_nancy";
   j["payload"] = payload;
 
-  printf("payload object:\n---\n%s\n---\n", j.dump(4).c_str());
+  // printf("payload object:\n---\n%s\n---\n", j.dump(4).c_str());
 
   mqttPublish("fbp", "", j);
+  dbg("Sent msgflo discovery message\n");
 
   lastTick = timeMs;
 }

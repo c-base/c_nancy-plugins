@@ -14,7 +14,7 @@ using json = nlohmann::json;
 
 constexpr const char* AUTHOR          = "coon@c-base.org";
 constexpr const char* PLUGIN_NAME     = "msgflo (c++)";
-constexpr const char* PLUGIN_VERSION  = "08.12.17";
+constexpr const char* PLUGIN_VERSION  = "09.12.17";
 
 constexpr const char* MQTT_BROKER_HOSTNAME = "tcp://c-beam:1883";
 constexpr const char* MQTT_BASE_TOPIC      = "werkstatt/c_nancy/";
