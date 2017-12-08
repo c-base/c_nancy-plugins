@@ -12,8 +12,9 @@ A msgflo plugin for UCCNC which publishes c_nancy activity to c-base c-flo MQTT 
 - copy **msgflo.dll** to **Plugins/cpp** directory
 
 ### Features ###
+- Dynamic reload - Unload and reload the plugin without restarting UCCNC
 - Use modern C++ without any feature limitations
-- Debug using printf
+- Debug using printf and an attached console
   - UCCNC has a copyprotection which prevents you attaching the visual studio debugger to UCCNC. This makes it hard to debug your plugin. When compiling the C++ dll in debug configuration a console is attached to UCCNC so you can debug using printf.
 
 ### Reasons for using C++ ###
