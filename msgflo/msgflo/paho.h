@@ -33,6 +33,10 @@ private:
   using MqttClientPublishMessage_t    = decltype(MQTTClient_publishMessage);
   using MqttClientWaitForCompletion_t = decltype(MQTTClient_waitForCompletion);
 
+  static void onConnectionLost(void* pContext, char* pCause);
+  static int onMsgArrived(void* pContext, char* pTopicName, int topicLen, MQTTClient_message* pMessage);
+  static void onMsgDeliveryComplete(void* pContext, MQTTClient_deliveryToken dt);
+
   MqttClientSetCallBacks_t* pSetCallBacksFunc_{ nullptr };
   MqttClientGetVersionInfo_t* pGetVersionInfoFunc_{ nullptr };
   MqttClientCreate_t* pClientCreateFunc_{ nullptr };

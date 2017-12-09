@@ -8,9 +8,11 @@ Paho::Paho(const string& pahoDllPath) {
   hDll_ = LoadLibrary(pahoDllPath.c_str());
 
   if (hDll_)
-    printf("%s loaded to: 0x%p\n", pahoDllPath.c_str(), hDll_);
-  else
-    printf("Failed loading %s\n", pahoDllPath.c_str());
+    dbg("%s loaded to: 0x%p\n", pahoDllPath.c_str(), hDll_);
+  else {
+    dbg("Failed loading %s\n", pahoDllPath.c_str());
+    return;
+  }
 
   pSetCallBacksFunc_         = reinterpret_cast<MqttClientSetCallBacks_t*>(GetProcAddress(hDll_,      "MQTTClient_setCallbacks"));
   pGetVersionInfoFunc_       = reinterpret_cast<MqttClientGetVersionInfo_t*>(GetProcAddress(hDll_,    "MQTTClient_getVersionInfo"));
@@ -39,7 +41,27 @@ Paho::Paho(const string& pahoDllPath) {
   printFuncAddr("MQTTClient_waitForCompletion", pClientWaitForCompletion_);
 
   MQTTClient_nameValue* pName = pGetVersionInfoFunc_();
-  printf("MQTT Versoin info: Name: '%s', '%s'\n", pName->name, pName->value);
+  printf("MQTT Version info: Name: '%s', '%s'\n", pName->name, pName->value);
+}
+
+void Paho::onConnectionLost(void* pContext, char* pCause) {
+  Paho* pThis = static_cast<Paho*>(pContext);
+
+  dbg("Lost connection to MQTT!\n");
+}
+
+int Paho::onMsgArrived(void* pContext, char* pTopicName, int topicLen, MQTTClient_message* pMessage) {
+  Paho* pThis = static_cast<Paho*>(pContext);
+
+  dbg("Message arrived on MQTT!\n");
+
+  return 0;
+}
+
+void Paho::onMsgDeliveryComplete(void* pContext, MQTTClient_deliveryToken dt) {
+  Paho* pThis = static_cast<Paho*>(pContext);
+
+  dbg("Message delivery complete on MQTT!\n");
 }
 
 bool Paho::connect(const string& brokerHostName, const string& clientId, const string& lastWillTopic,
@@ -49,21 +71,7 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
   if (int error = pClientCreateFunc_(&hMqttClient_, brokerHostName.c_str(), clientId.c_str(), 1, nullptr))
     return false;
 
-  auto connLost = [](void* pContext, char* pCause) -> void {
-    dbg("Lost connection to MQTT!\n");
-  };
-
-  auto msgArrived = [](void* pContext, char* pTopicName, int topicLen, MQTTClient_message* pMessage) -> int {
-    dbg("Message arrived on MQTT!\n");
-
-    return 0;
-  };
-
-  auto msgDeliveryComplete = [](void* pContext, MQTTClient_deliveryToken dt) -> void {
-    dbg("Message delivery complete on MQTT!\n");
-  };
-
-  if (int error = pSetCallBacksFunc_(hMqttClient_, nullptr, connLost, msgArrived, msgDeliveryComplete))
+  if (int error = pSetCallBacksFunc_(hMqttClient_, this, onConnectionLost, onMsgArrived, onMsgDeliveryComplete))
     dbg("Paho::connect; Failed setting callbacks: %d\n", error);
   else
     dbg("Paho::connect; Callbacks set\n");
