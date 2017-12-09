@@ -63,8 +63,6 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
     dbg("Message delivery complete on MQTT!\n");
   };
 
-  MQTTClient_connectionLost;
-
   if (int error = pSetCallBacksFunc_(hMqttClient_, nullptr, connLost, msgArrived, msgDeliveryComplete))
     dbg("Paho::connect; Failed setting callbacks: %d\n", error);
   else

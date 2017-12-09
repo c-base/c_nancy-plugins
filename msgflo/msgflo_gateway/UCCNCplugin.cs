@@ -8,8 +8,6 @@ using System.Reflection;
 
 namespace Plugins {
   public class UCCNCplugin { // Class name must be UCCNCplugin to work!
-    public const string dllName = "msgflo.dll"; // TODO: retrive dll name from gateway dll name!
-
     public class CppDll {
       static class Kernel32 {
         [DllImport("kernel32.dll")]
@@ -22,8 +20,14 @@ namespace Plugins {
         public static extern bool FreeLibrary(IntPtr hModule);
       }
 
-      public CppDll(String dllPath) {
-        path = dllPath;
+      public CppDll() {
+          string assemblyPath = Assembly.GetExecutingAssembly().Location;
+          string assemblyName = assemblyPath.Substring(assemblyPath.LastIndexOf('/') + 1);
+          string cppDllName = assemblyName.Substring(0, assemblyName.LastIndexOf('_')) + ".dll";
+          string absoluteDllPath = assemblyPath.Substring(0, assemblyPath.LastIndexOf('/')) +
+              @"/cpp/" + cppDllName;
+
+          path = absoluteDllPath;
       }
 
       ~CppDll() {
@@ -267,10 +271,7 @@ namespace Plugins {
     public CppDll cppDll;
 
     public unsafe UCCNCplugin() {
-      string exePath = Assembly.GetEntryAssembly().Location;
-      string absoluteDllPath = exePath.Substring(0, exePath.LastIndexOf('\\')) + @"\Plugins\cpp\" + dllName;
-
-      cppDll = new CppDll(absoluteDllPath);
+      cppDll = new CppDll();
       delayedDllOperation = DllDelayedOperation.None;
 
       uc_callbacks = new PluginInterfaceEntry();
