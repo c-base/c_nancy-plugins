@@ -31,9 +31,9 @@
       this.button_load = new System.Windows.Forms.Button();
       this.button_unload = new System.Windows.Forms.Button();
       this.SuspendLayout();
-      // 
+      //
       // button_load
-      // 
+      //
       this.button_load.Enabled = false;
       this.button_load.Location = new System.Drawing.Point(12, 12);
       this.button_load.Name = "button_load";
@@ -42,9 +42,9 @@
       this.button_load.Text = "Load";
       this.button_load.UseVisualStyleBackColor = true;
       this.button_load.Click += new System.EventHandler(this.button_load_Click);
-      // 
+      //
       // button_unload
-      // 
+      //
       this.button_unload.Enabled = false;
       this.button_unload.Location = new System.Drawing.Point(12, 41);
       this.button_unload.Name = "button_unload";
@@ -53,9 +53,9 @@
       this.button_unload.Text = "Unload";
       this.button_unload.UseVisualStyleBackColor = true;
       this.button_unload.Click += new System.EventHandler(this.button_unload_Click);
-      // 
+      //
       // PluginForm
-      // 
+      //
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(301, 235);
@@ -65,7 +65,6 @@
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
       this.Text = "cpp plugin config";
       this.TopMost = true;
-      this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PluginForm_FormClosing);
       this.Load += new System.EventHandler(this.PluginForm_Load);
       this.ResumeLayout(false);
 

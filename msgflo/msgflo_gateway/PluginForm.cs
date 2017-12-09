@@ -11,7 +11,6 @@ namespace Plugins {
   public partial class PluginForm : Form {
     private Plugininterface.Entry UC;
     UCCNCplugin Pluginmain;
-    bool mustclose = false;
 
     public PluginForm(UCCNCplugin Pluginmain) {
       this.UC = Pluginmain.UC;
@@ -20,36 +19,8 @@ namespace Plugins {
     }
 
     private void PluginForm_Load(object sender, EventArgs e) {
-      CheckForIllegalCrossThreadCalls = false;
+      // CheckForIllegalCrossThreadCalls = false;
       setButtons();
-    }
-
-    private void PluginForm_FormClosing(object sender, FormClosingEventArgs e) {
-      // Do not close the form when the red X button is pressed
-      // But start a Thread which will stop the Loop call from the UCCNC
-      // to prevent the form closing while there is a GUI update in the Loop event
-      if (!mustclose) {
-        e.Cancel = true;
-        Thread closethr = new Thread(new ThreadStart(Closeform));
-        closethr.Start();
-      }
-      else {
-        // Form is closing here...
-      }
-    }
-
-    public void Closeform() {
-      // Stop the Loop event to update the GUI
-      Pluginmain.loopstop = true;
-
-      // Wait until the loop exited
-      while (Pluginmain.loopworking) {
-        Thread.Sleep(10);
-      }
-
-      // Set the mustclose variable to true and call the .Close() function to close the Form
-      mustclose = true;
-      this.Close();
     }
 
     private void setButtons() {
