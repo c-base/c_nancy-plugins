@@ -8,9 +8,6 @@ UccncPlugin* _onCreatePlugin() {
 }
 
 MsgFlo::MsgFlo() {
-  if constexpr (isDebug())
-    attachDebugConsole();
-
   trace();
 
   const string dllName = "paho-mqtt3c.dll";
@@ -31,15 +28,11 @@ MsgFlo::MsgFlo() {
 MsgFlo::~MsgFlo() {
   trace();
 
-  if (pPaho_->isConnected()) {
+  if (pPaho_->isConnected())
     msgFloOnline(false);
-  }
 
   if(pPaho_)
     delete pPaho_;
-
-  if constexpr (isDebug())
-    detachDebugConsole();
 }
 
 bool MsgFlo::mqttConnect() {
@@ -265,7 +258,7 @@ void MsgFlo::onShutdown() {
 }
 
 void MsgFlo::buttonPressEvent(UccncButton button, bool onScreen) {
-  // trace();
+  trace();
 
   if (onScreen) {
     if (button == UccncButton::Cyclestart) {
