@@ -42,12 +42,19 @@ class UccncPlugin {
 public:
   static UccncPlugin* create(); // Implement this method in your plugins .cpp file.
 
-  // Example for ExamplePlugin:
-  // ------------------------------------
-  // UccncPlugin* UccncPlugin::create() {
-  //   return new ExamplePlugin();
+  // Example:
+  //
+  //----------------------------------------
+  // class YourPlugin : public UccncPlugin {
+  // ...
   // }
-  // ------------------------------------
+  // ---------------------------------------
+  //
+  // ---------------------------------------
+  // UccncPlugin* UccncPlugin::create() {
+  //   return new YourPlugin();
+  // }
+  // ---------------------------------------
 
   UccncPlugin(const string& author, const string& pluginName, const string& pluginVersion) {
     if constexpr (isDebug())
