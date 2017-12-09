@@ -119,8 +119,8 @@ bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, 
   if (int error = pClientPublishMessage_(hMqttClient_, topic.c_str(), &msg, &dt))
     return false;
 
-  if (int error = pClientWaitForCompletion_(hMqttClient_, dt, 3000));
-  return false;
+  if (int error = pClientWaitForCompletion_(hMqttClient_, dt, 3000))
+    return false;
 
   return true;
 }

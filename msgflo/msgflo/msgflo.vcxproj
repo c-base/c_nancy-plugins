@@ -94,6 +94,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="paho.cpp" />
     <ClCompile Include="msgflo.cpp" />
+    <ClCompile Include="uccncplugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug.h" />
@@ -102,6 +103,7 @@
     <ClInclude Include="MQTTClient.h" />
     <ClInclude Include="msgflo.h" />
     <ClInclude Include="singleton.h" />
+    <ClInclude Include="uccncplugin.h" />
     <ClInclude Include="uccnc_types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

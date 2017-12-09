@@ -1,7 +1,6 @@
 ﻿#include <time.h>
 #include <limits.h>
 #include <fstream>
-#include "debug.h"
 #include "msgflo.h"
 
 MsgFlo::MsgFlo() {
@@ -65,12 +64,6 @@ bool MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const 
 
 bool MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
   return mqttPublish(baseTopic_, subTopic, jsonObj, retain);
-}
-
-void MsgFlo::setCallBacks(PluginInterfaceEntry uc) {
-  trace();
-
-  UC = uc;
 }
 
 void MsgFlo::onFirstCycle() {
