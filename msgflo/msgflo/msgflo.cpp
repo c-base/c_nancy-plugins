@@ -3,6 +3,10 @@
 #include <fstream>
 #include "msgflo.h"
 
+UccncPlugin* _onCreatePlugin() {
+  return new MsgFlo();
+}
+
 MsgFlo::MsgFlo() {
   if constexpr (isDebug())
     attachDebugConsole();
@@ -64,6 +68,10 @@ bool MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const 
 
 bool MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
   return mqttPublish(baseTopic_, subTopic, jsonObj, retain);
+}
+
+UccncPlugin* MsgFlo::create() {
+  return new MsgFlo();
 }
 
 void MsgFlo::onFirstCycle() {

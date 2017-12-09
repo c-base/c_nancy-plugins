@@ -36,10 +36,10 @@ struct PluginInterfaceEntry {
   decltype(uCgetCpos)*        pCgetCpos;
 };
 
-template <typename T>
-class UccncPlugin : public Singleton<T> {
+class UccncPlugin {
 public:
-  void setCallBacks(PluginInterfaceEntry uc);
+  virtual ~UccncPlugin() = 0 { };
+  virtual UccncPlugin* create() = 0;
   virtual void onFirstCycle() = 0;
   virtual void onTick() = 0;
   virtual void onShutdown() = 0;
@@ -48,16 +48,14 @@ public:
   virtual void textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText) = 0;
   virtual void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion) = 0;
 
+  void setCallBacks(PluginInterfaceEntry uc) {
+    trace();
+    UC = uc;
+  }
+
 protected:
   PluginInterfaceEntry UC{ 0 };
 };
-
-template <typename T>
-void UccncPlugin<T>::setCallBacks(PluginInterfaceEntry uc) {
-  trace();
-
-  UC = uc;
-}
 
 #endif // _UCCNCPLUGIN_H
 

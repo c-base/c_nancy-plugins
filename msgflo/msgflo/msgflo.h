@@ -24,11 +24,12 @@ enum class MsgRetain {
   Retain,
 };
 
-class MsgFlo : public UccncPlugin<MsgFlo> {
+class MsgFlo : public UccncPlugin {
 public:
   MsgFlo();
   ~MsgFlo();
 
+  virtual UccncPlugin* create() final override;
   virtual void onFirstCycle() final override;
   virtual void onTick() final override;
   virtual void onShutdown() final override;

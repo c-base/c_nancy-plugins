@@ -94,7 +94,6 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="paho.cpp" />
     <ClCompile Include="msgflo.cpp" />
-    <ClCompile Include="uccncplugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug.h" />
