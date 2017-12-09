@@ -3,11 +3,11 @@
 #include <fstream>
 #include "msgflo.h"
 
-UccncPlugin* _onCreatePlugin() {
+UccncPlugin* UccncPlugin::create() {
   return new MsgFlo();
 }
 
-MsgFlo::MsgFlo() {
+MsgFlo::MsgFlo() : UccncPlugin(AUTHOR, PLUGIN_NAME, PLUGIN_VERSION) {
   trace();
 
   const string dllName = "paho-mqtt3c.dll";
@@ -61,10 +61,6 @@ bool MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const 
 
 bool MsgFlo::mqttPublish(const string& subTopic, const json& jsonObj, MsgRetain retain) {
   return mqttPublish(baseTopic_, subTopic, jsonObj, retain);
-}
-
-UccncPlugin* MsgFlo::create() {
-  return new MsgFlo();
 }
 
 void MsgFlo::onFirstCycle() {
@@ -295,14 +291,6 @@ void MsgFlo::textFieldTextTypedEvent(UccncField label, bool isMainScreen, const 
       // TODO: implement
     }
   }
-}
-
-void MsgFlo::getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion) {
-  trace();
-
-  strcpy_s(pAuthor, 256, AUTHOR);
-  strcpy_s(pPluginName, 256, PLUGIN_NAME);
-  strcpy_s(pPluginVersion, 256, PLUGIN_VERSION);
 }
 
 bool MsgFlo::msgFloOnline(bool isOnline) {

@@ -1,9 +1,11 @@
 #ifndef _UCCNCPLUGIN_H
 #define _UCCNCPLUGIN_H
 
-#include "singleton.h"
+#include <string>
 #include "uccnc_types.h"
 #include "debug.h"
+
+using namespace std;
 
 // These function definitions do only exist so they can be used in decltype.
 // None of these functions is meant to be implemented:
@@ -38,7 +40,16 @@ struct PluginInterfaceEntry {
 
 class UccncPlugin {
 public:
-  UccncPlugin() {
+  static UccncPlugin* create(); // Implement this method in your plugins .cpp file.
+
+  // Example for ExamplePlugin:
+  // ------------------------------------
+  // UccncPlugin* UccncPlugin::create() {
+  //   return new ExamplePlugin();
+  // }
+  // ------------------------------------
+
+  UccncPlugin(const string& author, const string& pluginName, const string& pluginVersion) {
     if constexpr (isDebug())
       attachDebugConsole();
 
@@ -49,6 +60,10 @@ public:
 
     SetConsoleTitle("UCCNC C++ plugin debug console. (Build: " __DATE__ ", " __TIME__ ")\n");
     trace();
+
+    author_ = author;
+    pluginName_ = pluginName;
+    pluginVersion_ = pluginVersion;
   }
 
   virtual ~UccncPlugin() = 0 {
@@ -58,14 +73,20 @@ public:
       detachDebugConsole();
   }
 
-  virtual UccncPlugin* create() = 0;
+  void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion) {
+    trace();
+
+    strcpy_s(pAuthor, 256, author_.c_str());
+    strcpy_s(pPluginName, 256, pluginName_.c_str());
+    strcpy_s(pPluginVersion, 256, pluginVersion_.c_str());
+  }
+
   virtual void onFirstCycle() = 0;
   virtual void onTick() = 0;
   virtual void onShutdown() = 0;
   virtual void buttonPressEvent(UccncButton button, bool onScreen) = 0;
   virtual void textFieldClickEvent(UccncField label, bool isMainScreen) = 0;
   virtual void textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText) = 0;
-  virtual void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion) = 0;
 
   void setCallBacks(PluginInterfaceEntry uc) {
     trace();
@@ -74,6 +95,11 @@ public:
 
 protected:
   PluginInterfaceEntry UC{ 0 };
+
+private:
+  string author_;
+  string pluginName_;
+  string pluginVersion_;
 };
 
 #endif // _UCCNCPLUGIN_H

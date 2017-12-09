@@ -29,14 +29,12 @@ public:
   MsgFlo();
   ~MsgFlo();
 
-  virtual UccncPlugin* create() final override;
   virtual void onFirstCycle() final override;
   virtual void onTick() final override;
   virtual void onShutdown() final override;
   virtual void buttonPressEvent(UccncButton button, bool onScreen) final override;
   virtual void textFieldClickEvent(UccncField label, bool isMainScreen) final override;
   virtual void textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText) final override;
-  virtual void getPropertiesEvent(char* pAuthor, char* pPluginName, char* pPluginVersion) final override;
 
 private:
   bool mqttConnect();
