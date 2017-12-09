@@ -101,6 +101,8 @@ void MsgFlo::handleDiscovery(long timeMs) {
   j["command"] = "participant";
 
   json payload;
+  payload["role"] = "c_nancy";
+  payload["id"] = "c_nancy";
   payload["component"] = "c-base/c_nancy";
   payload["label"] = "CNC mill status";
   payload["icon"] = "scissors";
@@ -140,8 +142,6 @@ void MsgFlo::handleDiscovery(long timeMs) {
 
   payload["outports"] = outports;
 
-  j["role"] = "c_nancy";
-  j["id"] = "c_nancy";
   j["payload"] = payload;
 
   // printf("payload object:\n---\n%s\n---\n", j.dump(4).c_str());
