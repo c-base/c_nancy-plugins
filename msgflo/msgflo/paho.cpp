@@ -69,6 +69,7 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
     dbg("Paho::connect; Callbacks set\n");
 
   MQTTClient_willOptions will = MQTTClient_willOptions_initializer;
+  will.topicName = lastWillTopic.c_str();
   will.payload.data = pLastWillMsg;
   will.payload.len = msgLen;
   will.retained = true;
@@ -77,7 +78,7 @@ bool Paho::connect(const string& brokerHostName, const string& clientId, const s
   MQTTClient_connectOptions opts = MQTTClient_connectOptions_initializer;
   opts.keepAliveInterval = 20;
   opts.cleansession = 1;
-  // opts.will = &will;
+  opts.will = &will;
 
   if (int error = pClientConnectFunc_(hMqttClient_, &opts))
     return false;

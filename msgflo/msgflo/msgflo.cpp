@@ -36,7 +36,7 @@ MsgFlo::~MsgFlo() {
 }
 
 bool MsgFlo::mqttConnect() {
-  json j = "false";
+  json j = false;
   string lastWillStr = j.dump();
 
   return pPaho_->connect(MQTT_BROKER_HOSTNAME, MQTT_CLIENT_ID, baseTopic_ + "online", lastWillStr.c_str(),
