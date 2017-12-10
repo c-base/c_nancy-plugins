@@ -1,0 +1,3 @@
+[submodule "uccnc-cpp-plugin"]
+	path = uccnc-cpp-plugin
+	url = https://github.com/coon42/uccnc-cpp-plugin.git
