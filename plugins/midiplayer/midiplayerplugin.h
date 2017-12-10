@@ -2,7 +2,7 @@
 #define _MIDIPLAYER_H
 
 #include "uccncplugin.h"
-#include "midiplayer.h"
+#include "embedded-midilib/midiplayer.h"
 
 constexpr const char* AUTHOR =         "coon@c-base.org";
 constexpr const char* PLUGIN_NAME =    "midiplayer (c++)";
