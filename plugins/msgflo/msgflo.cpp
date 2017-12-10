@@ -153,7 +153,7 @@ void MsgFlo::handleDiscovery(long timeMs) {
 }
 
 bool MsgFlo::isMilling() {
-  return UC.pGetLed(UccncLed::Cyclestart);
+  return UC.getLed(UccncLed::Cyclestart);
 }
 
 void MsgFlo::handleMillingState(long timeMs) {
@@ -170,7 +170,7 @@ void MsgFlo::handleMillingState(long timeMs) {
 
     if (isMilling_) {
       char pField[256];
-      UC.pGetField(pField, sizeof(pField), true, UccncField::Diagnostics_Filename);
+      UC.getField(pField, sizeof(pField), true, UccncField::Diagnostics_Filename);
 
       // Some times the field has a leading white space (0x20) which will cause an error when trying to
       // open the file. Therefore any lading whitespaces will be skipped:
@@ -190,7 +190,7 @@ void MsgFlo::handleMillingState(long timeMs) {
       _gCodeFile.close();
   }
 
-  int currentLine = UC.pGetFieldInt(true, UccncField::Setnextlinefield);
+  int currentLine = UC.getFieldInt(true, UccncField::Setnextlinefield);
 
   if (m && _lastLine != currentLine) {
     string line;
@@ -215,16 +215,16 @@ void MsgFlo::handleMillingState(long timeMs) {
 }
 
 void MsgFlo::handlePositionState(long timeMs) {
-  if (!UC.pIsMoving())
+  if (!UC.isMoving())
     return;
 
   json j;
-  j["X"] = UC.pCgetXpos();
-  j["Y"] = UC.pCgetYpos();
-  j["Z"] = UC.pCgetZpos();
-  j["A"] = UC.pCgetApos();
-  j["B"] = UC.pCgetBpos();
-  j["C"] = UC.pCgetCpos();
+  j["X"] = UC.getXpos();
+  j["Y"] = UC.getYpos();
+  j["Z"] = UC.getZpos();
+  j["A"] = UC.getApos();
+  j["B"] = UC.getBpos();
+  j["C"] = UC.getCpos();
 
   // dbg(j.dump(4).c_str());
   // dbg("\n");
@@ -244,7 +244,7 @@ void MsgFlo::handleWorkTime(long timeMs) {
     return;
 
   char pField[256];
-  UC.pGetField(pField, sizeof(pField), true, UccncField::Worktimer);
+  UC.getField(pField, sizeof(pField), true, UccncField::Worktimer);
 
   json j = pField;
   mqttPublish("worktime", j);
