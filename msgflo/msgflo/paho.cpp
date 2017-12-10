@@ -61,7 +61,7 @@ int Paho::onMsgArrived(void* pContext, char* pTopicName, int topicLen, MQTTClien
 void Paho::onMsgDeliveryComplete(void* pContext, MQTTClient_deliveryToken dt) {
   Paho* pThis = static_cast<Paho*>(pContext);
 
-  dbg("Message delivery complete on MQTT!\n");
+  // dbg("Message delivery complete on MQTT!\n");
 }
 
 bool Paho::connect(const string& brokerHostName, const string& clientId, const string& lastWillTopic,

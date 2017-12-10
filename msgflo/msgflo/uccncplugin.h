@@ -1,6 +1,7 @@
 #ifndef _UCCNCPLUGIN_H
 #define _UCCNCPLUGIN_H
 
+#include <windows.h>
 #include <string>
 #include "uccnc_types.h"
 #include "debug.h"

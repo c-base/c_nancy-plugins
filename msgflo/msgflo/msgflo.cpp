@@ -172,10 +172,14 @@ void MsgFlo::handleMillingState(long timeMs) {
       char pField[256];
       UC.pGetField(pField, sizeof(pField), true, UccncField::Diagnostics_Filename);
 
-      // The field has a leading white space (0x20) which will cause an error when trying to
-      // open the file. Therefore this leading whitespace will be skipped:
+      // Some times the field has a leading white space (0x20) which will cause an error when trying to
+      // open the file. Therefore any lading whitespaces will be skipped:
 
-      const char* pFileName = &pField[1];
+      int index = 0;
+      for (; pField[index] == 0x20; index++);
+      dbg("Index is: %d\n", index);
+
+      const char* pFileName = &pField[index];
       _gCodeFile.open(pFileName);
 
       if (!_gCodeFile.is_open()) {
@@ -222,9 +226,10 @@ void MsgFlo::handlePositionState(long timeMs) {
   j["B"] = UC.pCgetBpos();
   j["C"] = UC.pCgetCpos();
 
-  dbg(j.dump(4).c_str());
-  dbg("\n");
+  // dbg(j.dump(4).c_str());
+  // dbg("\n");
 
+  dbg("Sent position to MQTT\n");
   mqttPublish("position", j);
 }
 
