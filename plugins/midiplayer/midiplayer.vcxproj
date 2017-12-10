@@ -13,12 +13,23 @@
   <ItemGroup>
     <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\debug.cpp" />
     <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\dllmain.cpp" />
-    <ClCompile Include="midiplayer.cpp" />
+    <ClCompile Include="embedded-midilib\midifile.c" />
+    <ClCompile Include="embedded-midilib\midiplayer.c" />
+    <ClCompile Include="embedded-midilib\midiutil.c" />
+    <ClCompile Include="hal_filesystem_win32.c" />
+    <ClCompile Include="hal_misc_win32.c" />
+    <ClCompile Include="midiplayerplugin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\debug.h" />
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h" />
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccnc_types.h" />
+    <ClInclude Include="embedded-midilib\hal\hal_filesystem.h" />
+    <ClInclude Include="embedded-midilib\hal\hal_misc.h" />
+    <ClInclude Include="embedded-midilib\midifile.h" />
+    <ClInclude Include="embedded-midilib\midiinfo.h" />
+    <ClInclude Include="embedded-midilib\midiplayer.h" />
+    <ClInclude Include="embedded-midilib\midiutil.h" />
     <ClInclude Include="midiplayer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

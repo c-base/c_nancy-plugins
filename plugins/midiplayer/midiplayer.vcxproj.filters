@@ -13,15 +13,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\embedded-midilib">
+      <UniqueIdentifier>{ae85d0ad-a184-49db-9b8d-e834c2955d66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\embedded-midilib">
+      <UniqueIdentifier>{27a7e1fa-6e80-4774-bedb-c4d8e5883828}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\embedded-midilib\hal">
+      <UniqueIdentifier>{3ee5359a-0a53-45a9-a4c1-e20e4956bf2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\embedded-midilib\hal">
+      <UniqueIdentifier>{59a4796d-e510-468e-9758-c15ee4fd33e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="midiplayer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded-midilib\midifile.c">
+      <Filter>Source Files\embedded-midilib</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded-midilib\midiplayer.c">
+      <Filter>Source Files\embedded-midilib</Filter>
+    </ClCompile>
+    <ClCompile Include="embedded-midilib\midiutil.c">
+      <Filter>Source Files\embedded-midilib</Filter>
+    </ClCompile>
+    <ClCompile Include="hal_filesystem_win32.c">
+      <Filter>Source Files\embedded-midilib\hal</Filter>
+    </ClCompile>
+    <ClCompile Include="hal_misc_win32.c">
+      <Filter>Source Files\embedded-midilib\hal</Filter>
+    </ClCompile>
+    <ClCompile Include="midiplayerplugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -37,6 +64,24 @@
     </ClInclude>
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded-midilib\midifile.h">
+      <Filter>Header Files\embedded-midilib</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded-midilib\midiinfo.h">
+      <Filter>Header Files\embedded-midilib</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded-midilib\midiplayer.h">
+      <Filter>Header Files\embedded-midilib</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded-midilib\midiutil.h">
+      <Filter>Header Files\embedded-midilib</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded-midilib\hal\hal_filesystem.h">
+      <Filter>Header Files\embedded-midilib\hal</Filter>
+    </ClInclude>
+    <ClInclude Include="embedded-midilib\hal\hal_misc.h">
+      <Filter>Header Files\embedded-midilib\hal</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
