@@ -2,7 +2,10 @@
 #define _MIDIPLAYER_H
 
 #include "uccncplugin.h"
-#include "embedded-midilib/midiplayer.h"
+
+extern "C" {
+  #include "embedded-midilib/midiplayer.h"
+}
 
 constexpr const char* AUTHOR =         "coon@c-base.org";
 constexpr const char* PLUGIN_NAME =    "midiplayer (c++)";
@@ -19,6 +22,9 @@ public:
   virtual void buttonPressEvent(UccncButton button, bool onScreen) final override;
   virtual void textFieldClickEvent(UccncField label, bool isMainScreen) final override;
   virtual void textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText) final override;
+
+private:
+  MIDI_PLAYER mpl_{0};
 };
 
 #endif // _MIDIPLAYER_H

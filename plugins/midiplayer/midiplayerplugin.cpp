@@ -6,7 +6,6 @@ UccncPlugin* UccncPlugin::create() {
 
 MidiPlayer::MidiPlayer() : UccncPlugin(AUTHOR, PLUGIN_NAME, PLUGIN_VERSION) {
   trace();
-
 }
 
 MidiPlayer::~MidiPlayer() {
@@ -15,11 +14,53 @@ MidiPlayer::~MidiPlayer() {
 
 void MidiPlayer::onFirstCycle() {
   trace();
+
+  auto onNoteOn = [](int32_t track, int32_t tick, int32_t channel, int32_t note, int32_t velocity) -> void {
+    dbg("NoteOn: [%i] %d\n", channel, note);
+  };
+
+  auto onNoteOff = [](int32_t track, int32_t tick, int32_t channel, int32_t note) -> void {
+    dbg("NoteOff: [%i] %d\n", channel, note);
+  };
+
+  auto onMetaTrackNameEvent = [](int32_t track, int32_t tick, char *pText) -> void {
+    dbg("onMetaTrackNameEvent: %s\n", pText);
+  };
+
+  auto onMetaTextEvent = [](int32_t track, int32_t tick, char* pText) -> void {
+    dbg("onMetaTextEvent: %s\n", pText);
+  };
+
+  auto onMetaCopyrightEvent = [](int32_t track, int32_t tick, char* pText) -> void {
+    dbg("onMetaTextEvent: %s\n", pText);
+  };
+
+  auto onEndOfSequenceEvent = [](int32_t track, int32_t tick) -> void {
+    dbg("onEndOfSequenceEvent: [%i]\n", track);
+  };
+
+  midiplayer_init(&mpl_, onNoteOff, onNoteOn, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+      onMetaTextEvent, onMetaCopyrightEvent, onMetaTrackNameEvent, nullptr, nullptr, nullptr, nullptr, onEndOfSequenceEvent,
+      nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+
+  char pExePath[256];
+
+  GetModuleFileName(NULL, pExePath, sizeof(pExePath));
+  string exePath = pExePath;
+  string midiPath = exePath.substr(0, exePath.find_last_of("\\") + 1);
+  midiPath += "Plugins\\cpp\\";
+  midiPath += "midi.mid";
+
+  if (!playMidiFile(&mpl_, midiPath.c_str()))
+    dbg("Failed opening midi file!\n");
+  else
+    dbg("Midi file opened successfully!\n");
 }
 
 void MidiPlayer::onTick() {
   // trace();
 
+  midiPlayerTick(&mpl_);
 }
 
 void MidiPlayer::onShutdown() {
