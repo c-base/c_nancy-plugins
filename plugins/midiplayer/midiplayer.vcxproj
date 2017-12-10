@@ -30,7 +30,7 @@
     <ClInclude Include="embedded-midilib\midiinfo.h" />
     <ClInclude Include="embedded-midilib\midiplayer.h" />
     <ClInclude Include="embedded-midilib\midiutil.h" />
-    <ClInclude Include="midiplayer.h" />
+    <ClInclude Include="midiplayerplugin.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

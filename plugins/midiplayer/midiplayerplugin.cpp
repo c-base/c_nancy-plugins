@@ -1,4 +1,4 @@
-#include "midiplayer.h"
+#include "midiplayerplugin.h"
 
 UccncPlugin* UccncPlugin::create() {
   return new MidiPlayer();
