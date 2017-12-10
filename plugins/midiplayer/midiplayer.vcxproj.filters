@@ -83,5 +83,8 @@
     <ClInclude Include="midiplayerplugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

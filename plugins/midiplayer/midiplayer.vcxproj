@@ -22,6 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\debug.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\singleton.h" />
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h" />
     <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccnc_types.h" />
     <ClInclude Include="embedded-midilib\hal\hal_filesystem.h" />

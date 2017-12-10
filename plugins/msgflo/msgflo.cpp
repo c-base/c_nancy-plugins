@@ -3,8 +3,8 @@
 #include <fstream>
 #include "msgflo.h"
 
-UccncPlugin* UccncPlugin::create() {
-  return new MsgFlo();
+bool UccncPlugin::create() {
+  return UccncPlugin::_create<MsgFlo>();
 }
 
 MsgFlo::MsgFlo() : UccncPlugin(AUTHOR, PLUGIN_NAME, PLUGIN_VERSION) {

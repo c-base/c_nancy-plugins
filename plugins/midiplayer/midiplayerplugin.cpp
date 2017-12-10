@@ -1,7 +1,7 @@
 #include "midiplayerplugin.h"
 
-UccncPlugin* UccncPlugin::create() {
-  return new MidiPlayer();
+bool UccncPlugin::create() {
+  return UccncPlugin::_create<MidiPlayer>();
 }
 
 MidiPlayer::MidiPlayer() : UccncPlugin(AUTHOR, PLUGIN_NAME, PLUGIN_VERSION) {
