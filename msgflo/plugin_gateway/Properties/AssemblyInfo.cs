@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("plugin_gateway")]
-[assembly: AssemblyDescription("c++ binding plugin for UCCNC")]
+[assembly: AssemblyDescription("C++ binding plugin for UCCNC")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("plugin_gateway")]
