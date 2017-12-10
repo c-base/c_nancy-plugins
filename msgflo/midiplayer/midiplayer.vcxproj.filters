@@ -18,7 +18,10 @@
     <ClCompile Include="midiplayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\msgflo\debug.cpp">
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +29,13 @@
     <ClInclude Include="midiplayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\msgflo\debug.h">
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccnc_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

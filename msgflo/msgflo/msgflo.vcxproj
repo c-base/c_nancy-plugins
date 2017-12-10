@@ -45,9 +45,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\uccnc-cpp-plugin\cpp;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\uccnc-cpp-plugin\cpp;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,20 +92,19 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="debug.cpp" />
-    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\debug.cpp" />
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\dllmain.cpp" />
     <ClCompile Include="paho.cpp" />
     <ClCompile Include="msgflo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="debug.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\debug.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccnc_types.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="paho.h" />
     <ClInclude Include="MQTTClient.h" />
     <ClInclude Include="msgflo.h" />
-    <ClInclude Include="singleton.h" />
-    <ClInclude Include="uccncplugin.h" />
-    <ClInclude Include="uccnc_types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

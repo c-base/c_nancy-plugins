@@ -1,7 +1,7 @@
 #ifndef _MIDIPLAYER_H
 #define _MIDIPLAYER_H
 
-#include "../msgflo/uccncplugin.h"
+#include "uccncplugin.h"
 #include "midiplayer.h"
 
 constexpr const char* AUTHOR =         "coon@c-base.org";

@@ -11,11 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\msgflo\debug.cpp" />
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\debug.cpp" />
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\dllmain.cpp" />
     <ClCompile Include="midiplayer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\msgflo\debug.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\debug.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h" />
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccnc_types.h" />
     <ClInclude Include="midiplayer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -53,9 +56,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\uccnc-cpp-plugin\cpp;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\uccnc-cpp-plugin\cpp;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

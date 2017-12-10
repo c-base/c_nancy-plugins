@@ -18,21 +18,18 @@
     <ClCompile Include="msgflo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="paho.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="debug.cpp">
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\uccnc-cpp-plugin\cpp\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="msgflo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MQTTClient.h">
@@ -41,16 +38,16 @@
     <ClInclude Include="paho.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uccnc_types.h">
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uccncplugin.h">
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccnc_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\uccnc-cpp-plugin\cpp\uccncplugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
