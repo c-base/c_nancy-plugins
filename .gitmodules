@@ -1,3 +1,6 @@
 [submodule "uccnc-cpp-plugin"]
 	path = uccnc-cpp-plugin
 	url = https://github.com/coon42/uccnc-cpp-plugin.git
+[submodule "plugins/midiplayer/embedded-midilib"]
+	path = plugins/midiplayer/embedded-midilib
+	url = https://github.com/coon42/embedded-midilib.git
