@@ -53,6 +53,7 @@ bool MsgFlo::mqttIsConnected() {
 
 bool MsgFlo::mqttPublish(const string& baseTopic, const string& subTopic, const json& jsonObj,
     MsgRetain retain) {
+
   string jsonStr = jsonObj.dump();
 
   return pPaho_->publish(baseTopic + subTopic, jsonStr.c_str(), jsonStr.length(), 1,
@@ -93,8 +94,6 @@ void MsgFlo::handleDiscovery(long timeMs) {
 
   if ((timeMs - lastTick < 60 * 1000) && lastTick != 0)
     return;
-
-  dbg("MsgFlo::handleDiscovery; timeMs=%d, lastTick=%d\n", timeMs, lastTick);
 
   json j;
   j["protocol"] = "discovery";
@@ -169,17 +168,9 @@ void MsgFlo::handleMillingState(long timeMs) {
     mqttPublish("milling", j);
 
     if (isMilling_) {
-      char pField[256];
-      UC.getField(pField, sizeof(pField), true, UccncField::Diagnostics_Filename);
+      char pFileName[256];
+      UC.getGcodeFileName(pFileName, sizeof(pFileName));
 
-      // Some times the field has a leading white space (0x20) which will cause an error when trying to
-      // open the file. Therefore any lading whitespaces will be skipped:
-
-      int index = 0;
-      for (; pField[index] == 0x20; index++);
-      dbg("Index is: %d\n", index);
-
-      const char* pFileName = &pField[index];
       _gCodeFile.open(pFileName);
 
       if (!_gCodeFile.is_open()) {
@@ -196,19 +187,20 @@ void MsgFlo::handleMillingState(long timeMs) {
     string line;
 
     if (currentLine < _lastLine)
-      _lastLine = 0;
+      _lastLine = currentLine;
 
     int diff = currentLine - _lastLine;
 
-    // Skip lines if needed:
-    for (int i = 1; i < diff; i++)
+    // Don't miss any line:
+    for (int i = 0; i < diff; i++) {
       getline(_gCodeFile, line);
+      int l = currentLine - diff + i + 1;
 
-    getline(_gCodeFile, line);
-    dbg("Line: %d: %s\n", currentLine, line.c_str());
+      dbg("Line: %d: %s\n", l, line.c_str());
 
-    json j = line;
-    mqttPublish("gcode", j);
+      json j = line;
+      mqttPublish("gcode", j);
+    }
 
     _lastLine = currentLine;
   }
