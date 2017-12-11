@@ -136,4 +136,6 @@ bool Paho::publish(const string& topic, const void* pPayload, int len, int qos, 
 
 Paho::~Paho() {
   trace();
+
+  pClientDestroy_(&hMqttClient_);
 }
