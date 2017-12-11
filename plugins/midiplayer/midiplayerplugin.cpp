@@ -39,9 +39,15 @@ void MidiPlayer::onFirstCycle() {
     dbg("onEndOfSequenceEvent: [%i]\n", track);
   };
 
-  midiplayer_init(&mpl_, onNoteOff, onNoteOn, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-      onMetaTextEvent, onMetaCopyrightEvent, onMetaTrackNameEvent, nullptr, nullptr, nullptr, nullptr, onEndOfSequenceEvent,
-      nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+  MidiPlayerCallbacks_t callbacks = {0};
+  callbacks.pOnNoteOnCb          = onNoteOn;
+  callbacks.pOnNoteOffCb         = onNoteOff;
+  callbacks.pOnMetaTextEventCb   = onMetaTextEvent;
+  callbacks.pOnMetaCopyrightCb   = onMetaCopyrightEvent;
+  callbacks.pOnMetaTrackNameCb   = onMetaTrackNameEvent;
+  callbacks.pOnMetaEndSequenceCb = onEndOfSequenceEvent;
+
+  midiplayer_init(&mpl_, callbacks);
 
   char pExePath[256];
 
