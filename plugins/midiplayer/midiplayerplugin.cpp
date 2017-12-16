@@ -48,19 +48,6 @@ void MidiPlayer::onFirstCycle() {
   callbacks.pOnMetaEndSequenceCb = onEndOfSequenceEvent;
 
   midiplayer_init(&mpl_, callbacks);
-
-  char pExePath[256];
-
-  GetModuleFileName(NULL, pExePath, sizeof(pExePath));
-  string exePath = pExePath;
-  string midiPath = exePath.substr(0, exePath.find_last_of("\\") + 1);
-  midiPath += "Plugins\\cpp\\";
-  midiPath += "midi.mid";
-
-  if (!playMidiFile(&mpl_, midiPath.c_str()))
-    dbg("Failed opening midi file!\n");
-  else
-    dbg("Midi file opened successfully!\n");
 }
 
 void MidiPlayer::onTick() {
@@ -106,9 +93,24 @@ void MidiPlayer::textFieldClickEvent(UccncField label, bool isMainScreen) {
 void MidiPlayer::textFieldTextTypedEvent(UccncField label, bool isMainScreen, const char* pText) {
   trace();
 
+  string text = pText;
+
   if (isMainScreen) {
     if (label == UccncField::Mdi) {
-      // TODO: implement
+      if (text == "play") {
+        char pExePath[256];
+
+        GetModuleFileName(NULL, pExePath, sizeof(pExePath));
+        string exePath = pExePath;
+        string midiPath = exePath.substr(0, exePath.find_last_of("\\") + 1);
+        midiPath += "Plugins\\cpp\\";
+        midiPath += "midi.mid";
+
+        if (!playMidiFile(&mpl_, midiPath.c_str()))
+          dbg("Failed opening midi file!\n");
+        else
+          dbg("Midi file opened successfully!\n");
+      }
     }
   }
 }
