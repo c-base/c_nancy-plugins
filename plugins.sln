@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msgflo", "plugins\msgflo\msgflo.vcxproj", "{C65E3C0F-2A2D-40AD-8AAF-6EDA044F22B9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "midiplayer", "plugins\midiplayer\midiplayer.vcxproj", "{84171F5B-7BB4-4371-A444-F57969D05148}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "plugin_proxy", "uccnc-cpp-plugin\plugin_proxy\plugin_proxy.csproj", "{833AB583-1D7E-4A87-B28A-AF828B2948FF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "uccnc-cpp-plugin\cpp\example\example.vcxproj", "{F04719F6-5043-44A4-A017-B1BE8AD86C4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{833AB583-1D7E-4A87-B28A-AF828B2948FF}.Debug|x86.Build.0 = Debug|x86
 		{833AB583-1D7E-4A87-B28A-AF828B2948FF}.Release|x86.ActiveCfg = Release|x86
 		{833AB583-1D7E-4A87-B28A-AF828B2948FF}.Release|x86.Build.0 = Release|x86
+		{F04719F6-5043-44A4-A017-B1BE8AD86C4B}.Debug|x86.ActiveCfg = Debug|Win32
+		{F04719F6-5043-44A4-A017-B1BE8AD86C4B}.Debug|x86.Build.0 = Debug|Win32
+		{F04719F6-5043-44A4-A017-B1BE8AD86C4B}.Release|x86.ActiveCfg = Release|Win32
+		{F04719F6-5043-44A4-A017-B1BE8AD86C4B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
