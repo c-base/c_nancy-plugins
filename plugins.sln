@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msgflo", "plugins\msgflo\ms
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "midiplayer", "plugins\midiplayer\midiplayer.vcxproj", "{84171F5B-7BB4-4371-A444-F57969D05148}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "plugin_gateway", "uccnc-cpp-plugin\plugin_gateway\plugin_gateway.csproj", "{833AB583-1D7E-4A87-B28A-AF828B2948FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "plugin_proxy", "uccnc-cpp-plugin\plugin_proxy\plugin_proxy.csproj", "{833AB583-1D7E-4A87-B28A-AF828B2948FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
