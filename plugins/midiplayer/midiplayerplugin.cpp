@@ -17,6 +17,20 @@ void MidiPlayer::onFirstCycle() {
 
   auto onNoteOn = [](int32_t track, int32_t tick, int32_t channel, int32_t note, int32_t velocity) -> void {
     dbg("NoteOn: [%i] %d\n", channel, note);
+
+    auto midiNoteToFrequency = [](int note) -> double {
+      return 8.17575 * pow(2.0, note / 12.0);
+    };
+
+    double f = midiNoteToFrequency(note);
+    double feedRate = (f / 80.0) * 60.0;
+
+    char pCode[256];
+    sprintf_s(pCode, sizeof(pCode), "G1 X900 F%.3f", feedRate);
+
+    dbg("%s\n", pCode);
+
+    MidiPlayer::_instance()->UC.code(pCode);
   };
 
   auto onNoteOff = [](int32_t track, int32_t tick, int32_t channel, int32_t note) -> void {
